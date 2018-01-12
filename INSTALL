@@ -1,0 +1,2 @@
+cmake <path to lib>
+sudo make install
