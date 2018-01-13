@@ -1,2 +1,9 @@
+14.01.2018
+	- Fixed incorrect multiplication for var *= var
+	- Fixed incorrect multiplication if first operand have bigger size than second
+	- Fixed bug with remainder in mulAddPrimitive function
+	- Add new math functions: pow, powm
+	- Add const to second vector in functions addVector,subVector,mulVector
+
 12.01.2018
 	- Release

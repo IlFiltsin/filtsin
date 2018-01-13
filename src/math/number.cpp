@@ -302,7 +302,18 @@ namespace mind {
 
 	Number& Number::mul(const Number &value) noexcept {
 		if (!this->isUndefined() && !value.isUndefined()) {
-			Number::mulVector(this->info->realP, value.info->realP);
+			if (this == &value) {
+				vr vectorCopy = value.info->realP;
+				Number::mulVector(this->info->realP, vectorCopy);
+			} else {
+				if (this->info->realP.size() >= value.info->realP.size()) {
+					Number::mulVector(this->info->realP, value.info->realP);
+				} else {
+					vr vectorCopy = this->info->realP;
+					this->info->realP = value.info->realP;
+					Number::mulVector(this->info->realP,vectorCopy);
+				}
+			}
 			this->info->sign *= value.info->sign;
 		} else {
 			this->clearInfo();
@@ -536,10 +547,13 @@ namespace mind {
 		return (remainder >> shift);
 	}
 
-	void Number::addVector(vr &vector, vr &value) noexcept {
+	void Number::addVector(vr &vector, const vr &value) noexcept {
 		primitive::ull64 remainder = 0;
 
-		for (auto it(vector.begin()), end(vector.end()), itV(value.begin()), endV(value.end()); it < end && itV < endV; ++it, ++itV) {
+		auto itV  = value.cbegin();
+		auto endV = value.cend();
+
+		for (auto it(vector.begin()), end(vector.end()); it < end && itV < endV; ++it, ++itV) {
 			*it       += *itV + remainder;
 			remainder  = (*it < *itV) ? 1 : 0;
 		}
@@ -559,10 +573,13 @@ namespace mind {
 			}
 		}
 	}
-	void Number::subVector(vr &vector, vr &value) noexcept {
+	void Number::subVector(vr &vector, const vr &value) noexcept {
 		primitive::ull64 remainder = 0;
 
-		for (auto it(vector.begin()), end(vector.end()), itV(value.begin()), endV(value.end()); it < end && itV < endV; ++it, ++itV) {
+		auto itV  = value.cbegin();
+		auto endV = value.cend();
+
+		for (auto it(vector.begin()), end(vector.end()); it < end && itV < endV; ++it, ++itV) {
 			const primitive::ull64 rhsValue = *itV + remainder;
 			remainder = (*it < rhsValue) ? 1 : 0;
 			*it -= rhsValue;
@@ -575,13 +592,16 @@ namespace mind {
 			}
 		}
 	}
-	void Number::mulVector(vr &vector, vr &value) noexcept {
+	void Number::mulVector(vr &vector,const vr &value) noexcept {
 		const vr copyVector = vector;
 
 		vector.resize(vector.size() + value.size());
-		*(vector.begin() + copyVector.size()) = Number::mulPrimitive(vector,*value.begin(),copyVector.size());
+		*(vector.begin() + copyVector.size()) = Number::mulPrimitive(vector,*value.cbegin(),copyVector.size());
 
-		for (auto it(vector.begin() + 1), end(vector.end()), itV(value.begin() + 1), endV(value.end()); it < end && itV < endV; ++it, ++itV) {
+		auto itV  = value.cbegin() + 1;
+		auto endV = value.cend();
+
+		for (auto it(vector.begin() + 1), end(vector.end()); it < end && itV < endV; ++it, ++itV) {
 			*(it + copyVector.size()) = Number::mulAddPrimitive(copyVector.cbegin(),copyVector.cend(),*itV,it);
 		}
 
@@ -665,11 +685,8 @@ namespace mind {
 			auto resultBits = Number::getBitsMul(*it, value);
 			std::get<1>(resultBits) += remainder;
 
-			remainder = std::get<0>(resultBits);
-
-			if (std::get<1>(resultBits) < remainder) {
-				remainder++;
-			}
+			remainder = (std::get<1>(resultBits) < remainder) ? 1 : 0;
+			remainder += std::get<0>(resultBits);
 
 			*startPos += std::get<1>(resultBits);
 

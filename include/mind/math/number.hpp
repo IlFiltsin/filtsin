@@ -165,11 +165,11 @@ namespace mind {
 		static primitive::ull64 mulPrimitive(vr &, primitive::ull64, primitive::ull64 = 0) noexcept;
 		static primitive::ull64 divPrimitive(vr &, primitive::ull64, primitive::ull64 = 0) noexcept;
 
-		static void addVector(vr &, vr &) noexcept;
-		static void subVector(vr &, vr &) noexcept;
-		static void mulVector(vr &, vr &) noexcept;
-		static vr   divVector(vr &,const vr &) noexcept;
-		static void modVector(vr &,const vr &) noexcept;
+		static void addVector(vr &, const vr &) noexcept;
+		static void subVector(vr &, const vr &) noexcept;
+		static void mulVector(vr &, const vr &) noexcept;
+		static vr   divVector(vr &, const vr &) noexcept;
+		static void modVector(vr &, const vr &) noexcept;
 
 		static std::tuple<primitive::ull64,primitive::ull64> getBitsMul(primitive::ull64, primitive::ull64) noexcept;
 		static primitive::ull64 mulAddPrimitive(const vr::const_iterator &, const vr::const_iterator &, primitive::ull64, vr::iterator) noexcept;

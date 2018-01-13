@@ -19,6 +19,10 @@ namespace mind::math {
 	int sgn(const Number &) noexcept;
 	Number abs(const Number &) noexcept;
 	primitive::tick cnt(const Number &) noexcept;
+	Number pow(Number, Number) noexcept;
+	Number pow(Number, primitive::ull64) noexcept;
+	Number powm(Number, Number, const Number &) noexcept(strictMode);
+	Number powm(Number, primitive::ull64 , primitive::ull64) noexcept(strictMode);
 }
 
 #endif

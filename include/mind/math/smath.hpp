@@ -13,12 +13,18 @@
 #define SMATH_MIND
 
 #include <mind/other/common.hpp>
+#include <mind/exceptions/exception.hpp>
 
 namespace mind::math {
 
-	template <typename T> enable_if_integral <T,int> sgn(const T &) noexcept;
-	template <typename T> enable_if_integral <T,T> abs(const T &) noexcept;
-	template <typename T> enable_if_integral <T,primitive::tick> cnt(T) noexcept;
+	createExceptionClass(MathException);
+
+	template <typename T>
+	enable_if_integral <T,int> sgn(const T &) noexcept;
+	template <typename T>
+	enable_if_integral <T,T> abs(const T &) noexcept;
+	template <typename T>
+	enable_if_integral <T,primitive::tick> cnt(T) noexcept;
 
 	// ##############################################################################################
 	// 									                             Templates methods

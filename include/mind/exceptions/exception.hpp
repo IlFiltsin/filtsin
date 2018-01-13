@@ -9,6 +9,9 @@
 #
  ====----------------------------------------------------------------------====*/
 
+#ifndef EXC_MIND
+#define EXC_MIND
+
 #include <stdexcept>
 
 #define createExceptionClass(name)                        \
@@ -25,3 +28,5 @@ namespace mind {
 		MindException(const char *str) : runtime_error(str) {}
 	};
 }
+
+#endif
