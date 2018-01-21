@@ -16,7 +16,7 @@ Mind is **math library with support long arithmetic**
 
 ## Installation
 ### Clone the repository
-The first step is to clone the repository. Write in terminal:
+The first step is to clone the repository or download last release. Write in terminal:
 ```bash
 git clone https://github.com/IlFiltsin/mind.git
 ```
@@ -27,6 +27,17 @@ cmake <path to mind dir>
 sudo make install
 ```
 ## Using
+### Add library
+**Static**
+```cmake
+find_library(MIND libMind.a)
+target_link_libraries(${PROJECT_NAME} ${MIND})
+```
+**Dynamic**
+```cmake
+find_library(MIND Mind)
+target_link_libraries(${PROJECT_NAME} ${MIND})
+```
 ### Add all necessary headers
 ```c++
 #include <mind/math/number.hpp>
