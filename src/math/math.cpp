@@ -37,12 +37,16 @@ namespace mind::math {
 			return value.size();
 		}
 	}
-	Number pow(Number obj, Number power) noexcept {
-		if (power == 0) {
+	Number pow(Number obj, Number power) noexcept(!strictMode) {
+		if (power.isNegative()) {
+			runIfStrictMode([](){throw MathException("Can not pow to negative power.");});
+			return obj;
+		}
+		if (power.isZero()) {
 			return 1;
 		}
 		Number result = 1;
-		while (power > 0) {
+		while (power.isPositive()) {
 			if (power % 2 == 1) {
 				result *= obj;
 			}
@@ -65,17 +69,17 @@ namespace mind::math {
 		}
 		return result;
 	}
-	Number powm(Number obj, Number power, const Number &mod) noexcept(strictMode) {
-		if (mod == 0) {
+	Number powm(Number obj, Number power, const Number &mod) noexcept(!strictMode) {
+		if (mod.isZero()) {
 			runIfStrictMode([](){throw MathException("Invalid modulo. Modulo can not be 0.");});
 			return obj;
 		}
-		if (power == 0) {
+		if (power.isZero()) {
 			return 1;
 		}
 		Number result = 1;
 		obj %= mod;
-		while (power > 0) {
+		while (power.isPositive()) {
 			if (power % 2 == 1) {
 				result *= obj;
 				result %= mod;
@@ -86,7 +90,7 @@ namespace mind::math {
 		}
 		return result;
 	}
-	Number powm(Number obj, primitive::ull64 power, primitive::ull64 mod) noexcept(strictMode) {
+	Number powm(Number obj, primitive::ull64 power, primitive::ull64 mod) noexcept(!strictMode) {
 		if (mod == 0) {
 			runIfStrictMode([](){throw MathException("Invalid modulo. Modulo can not be 0.");});
 			return obj;

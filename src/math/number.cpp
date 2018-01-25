@@ -29,15 +29,15 @@ namespace mind {
 		delete this->info;
 	}
 
-	Number& Number::operator=(const std::string &value) noexcept(strictMode) {
+	Number& Number::operator=(const std::string &value) noexcept(!strictMode) {
 		this->setValue(value);
 		return *this;
 	}
-	Number& Number::operator=(const char *value) noexcept(strictMode) {
+	Number& Number::operator=(const char *value) noexcept(!strictMode) {
 		this->setValue(value);
 		return *this;
 	}
-	Number& Number::operator=(char value) noexcept(strictMode) {
+	Number& Number::operator=(char value) noexcept(!strictMode) {
 		if (isdigit(value)) {
 			this->allocInfo();
 			this->clearInfo();
@@ -70,7 +70,7 @@ namespace mind {
 		os << obj.getString();
 		return os;
 	}
-	std::istream& operator>>(std::istream &is, Number &obj) noexcept(strictMode) {
+	std::istream& operator>>(std::istream &is, Number &obj) noexcept(!strictMode) {
 		std::string value;
 		is >> value;
 		obj = value;
@@ -321,7 +321,7 @@ namespace mind {
 		return *this;
 	}
 
-	Number& Number::div(const Number &value) noexcept(strictMode) {
+	Number& Number::div(const Number &value) noexcept(!strictMode) {
 		if (!this->isUndefined() && !value.isUndefined()) {
 			if (!value.isZero()) {
 				if (!this->isZero()) {
@@ -339,7 +339,7 @@ namespace mind {
 		return *this;
 	}
 
-	Number& Number::mod(const Number &value) noexcept(strictMode) {
+	Number& Number::mod(const Number &value) noexcept(!strictMode) {
 		if (!this->isUndefined() && !value.isUndefined()) {
 			if (!value.isZero()) {
 				if (this->info->realP.size() >= value.info->realP.size()) {
@@ -390,7 +390,7 @@ namespace mind {
 		}
 	}
 
-	void Number::setValue(std::string value) noexcept(strictMode) {
+	void Number::setValue(std::string value) noexcept(!strictMode) {
 		int sign = 1;
 
 		while (isspace(*value.cbegin())) {

@@ -33,7 +33,7 @@ sudo make install
 find_library(MIND libMind.a)
 target_link_libraries(${PROJECT_NAME} ${MIND})
 ```
-**Dynamic**
+**Shared**
 ```cmake
 find_library(MIND Mind)
 target_link_libraries(${PROJECT_NAME} ${MIND})

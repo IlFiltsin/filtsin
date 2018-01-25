@@ -28,8 +28,6 @@
 
 namespace mind {
 
-	createExceptionClass(NumberException);
-
 	class Number {
 	public:
 		Number() = default;
@@ -45,14 +43,14 @@ namespace mind {
 		enable_if_integral <T, Number&>
 			operator=(const T &) noexcept;
 
-		Number &operator=(const std::string &) noexcept(strictMode);
-		Number &operator=(const char *) noexcept(strictMode);
-		Number &operator=(char) noexcept(strictMode);
+		Number &operator=(const std::string &) noexcept (!strictMode);
+		Number &operator=(const char *) noexcept (!strictMode);
+		Number &operator=(char) noexcept (!strictMode);
 		Number &operator=(const Number &) noexcept;
 		Number &operator=(Number &&) noexcept;
 
 		friend std::ostream &operator<<(std::ostream &, const Number &) noexcept;
-		friend std::istream &operator>>(std::istream &, Number &) noexcept(strictMode);
+		friend std::istream &operator>>(std::istream &, Number &) noexcept (!strictMode);
 
 		friend bool operator==(const Number &, const Number &) noexcept;
 		friend bool operator>(const Number &, const Number &) noexcept;
@@ -127,13 +125,13 @@ namespace mind {
 		template <typename T>
 		enable_if_integral <T,Number&> mul(const T &) noexcept;
 
-		Number &div(const Number &) noexcept(strictMode);
+		Number &div(const Number &) noexcept (!strictMode);
 		template <typename T>
-		enable_if_integral <T,Number&> div(const T &) noexcept(strictMode);
+		enable_if_integral <T,Number&> div(const T &) noexcept (!strictMode);
 
-		Number &mod(const Number &) noexcept(strictMode);
+		Number &mod(const Number &) noexcept (!strictMode);
 		template <typename T>
-		enable_if_integral <T,Number&> mod(const T &) noexcept(strictMode);
+		enable_if_integral <T,Number&> mod(const T &) noexcept (!strictMode);
 
 		bool isEqual(const Number &) const noexcept;
 
@@ -157,7 +155,7 @@ namespace mind {
 		void allocInfo() noexcept;
 		void clearInfo() noexcept;
 
-		void setValue(std::string) noexcept(strictMode);
+		void setValue(std::string) noexcept (!strictMode);
 		void setString(const std::string &) noexcept;
 
 		static primitive::ull64 addPrimitive(vr &, primitive::ull64, primitive::ull64 = 0) noexcept;
@@ -382,7 +380,7 @@ namespace mind {
 	}
 
 	template <typename T>
-	enable_if_integral <T,Number&> Number::div(const T &value) noexcept(strictMode) {
+	enable_if_integral <T,Number&> Number::div(const T &value) noexcept(!strictMode) {
 		if (!this->isUndefined()) {
 			if (value != 0) {
 				if (*this < value) {
@@ -399,7 +397,7 @@ namespace mind {
 	}
 
 	template <typename T>
-	enable_if_integral <T,Number&> Number::mod(const T &value) noexcept(strictMode) {
+	enable_if_integral <T,Number&> Number::mod(const T &value) noexcept(!strictMode) {
 		if (!this->isUndefined()) {
 			if (value != 0) {
 				this->info->realP = vr{Number::divPrimitive(this->info->realP,math::abs(value))};

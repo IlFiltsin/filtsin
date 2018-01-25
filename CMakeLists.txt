@@ -24,6 +24,13 @@ set (YELLOW         "${Esc}[1;33m")
 
 project (Mind VERSION ${VERSION_FULL})
 
+set (CMAKE_CXX_FLAGS "-std=c++11 -O2")
+
+option (BUILD_STATIC_LIBS "Build the static library." ON)
+option (BUILD_SHARED_LIBS "Build the shared library." ON)
+option (MIND_STRICT  "Strict mode for Mind library." OFF)
+
+
 function (message)
 
     list (GET ARGV 0 TYPE)
@@ -49,10 +56,10 @@ macro (get_subdirs result curdir)
 	foreach (child ${children}) 
 		if (IS_DIRECTORY ${curdir}/${child})
 			list (APPEND dirList ${child})
-		endif ()
-	endforeach ()
+		endif()
+	endforeach()
 	set (${result} ${dirList})
-endmacro ()
+endmacro()
 
 if (WIN32 OR WIN64 OR APPLE)
 	message (WARNING "Windows OS and Apple OS is not currently officially supported.")
@@ -67,6 +74,14 @@ if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 	message (FATAL_ERROR "Can not build ${PROJECT_NAME} in source folder. Choose another directory.")
 endif()
 
+if (NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
+	message (FATAL_ERROR "Can not build ${PROJECT_NAME} without specifying type of library. Choose static and/or shared type of library.")
+endif()
+
+if (MIND_STRICT)
+	add_definitions (-DMIND_STRICT)
+endif()
+
 get_subdirs (SRC_DIRS "${CMAKE_SOURCE_DIR}/src")
 
 
@@ -79,19 +94,18 @@ foreach (subdir ${SRC_DIRS})
 	endforeach ()
 endforeach()
 
-add_library (${PROJECT_NAME}_S STATIC ${SOURCES})
+if (BUILD_STATIC_LIBS)
+	add_library (${PROJECT_NAME}_S STATIC ${SOURCES})
+	set_target_properties (${PROJECT_NAME}_S PROPERTIES VERSION ${PROJECT_VERSION} OUTPUT_NAME ${PROJECT_NAME})
+	target_include_directories (${PROJECT_NAME}_S PRIVATE "${CMAKE_SOURCE_DIR}/src/"
+											PUBLIC "${CMAKE_SOURCE_DIR}/include/")
+	install (TARGETS ${PROJECT_NAME}_S LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+endif ()
+if (BUILD_SHARED_LIBS)
 add_library (${PROJECT_NAME} SHARED ${SOURCES})
-
 set_target_properties (${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
-set_target_properties (${PROJECT_NAME}_S PROPERTIES VERSION ${PROJECT_VERSION} OUTPUT_NAME ${PROJECT_NAME})
-
 target_include_directories (${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/src/"
 											PUBLIC "${CMAKE_SOURCE_DIR}/include/")
-
-
-target_include_directories (${PROJECT_NAME}_S PRIVATE "${CMAKE_SOURCE_DIR}/src/"
-											PUBLIC "${CMAKE_SOURCE_DIR}/include/")
-
 install (TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib)
-install (TARGETS ${PROJECT_NAME}_S LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+endif()
 install (DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include)
