@@ -13,7 +13,7 @@ cmake_minimum_required(VERSION 3.0)
 
 set (VERSION_MAJOR 1)
 set (VERSION_MINOR 1)
-set (VERSION_PATCH 0)
+set (VERSION_PATCH 1)
 set (VERSION_FULL "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
 string (ASCII 27 Esc)
@@ -26,8 +26,8 @@ project (Mind VERSION ${VERSION_FULL})
 
 set (CMAKE_CXX_FLAGS "-std=c++11 -O2")
 
-option (BUILD_STATIC_LIBS "Build the static library." ON)
-option (BUILD_SHARED_LIBS "Build the shared library." ON)
+option (BUILD_STATIC_LIB "Build the static library." ON)
+option (BUILD_SHARED_LIB "Build the shared library." ON)
 option (MIND_STRICT  "Strict mode for Mind library." OFF)
 
 
@@ -74,7 +74,7 @@ if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 	message (FATAL_ERROR "Can not build ${PROJECT_NAME} in source folder. Choose another directory.")
 endif()
 
-if (NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
+if (NOT BUILD_STATIC_LIB AND NOT BUILD_SHARED_LIB)
 	message (FATAL_ERROR "Can not build ${PROJECT_NAME} without specifying type of library. Choose static and/or shared type of library.")
 endif()
 
@@ -94,14 +94,14 @@ foreach (subdir ${SRC_DIRS})
 	endforeach ()
 endforeach()
 
-if (BUILD_STATIC_LIBS)
+if (BUILD_STATIC_LIB)
 	add_library (${PROJECT_NAME}_S STATIC ${SOURCES})
 	set_target_properties (${PROJECT_NAME}_S PROPERTIES VERSION ${PROJECT_VERSION} OUTPUT_NAME ${PROJECT_NAME})
 	target_include_directories (${PROJECT_NAME}_S PRIVATE "${CMAKE_SOURCE_DIR}/src/"
 											PUBLIC "${CMAKE_SOURCE_DIR}/include/")
 	install (TARGETS ${PROJECT_NAME}_S LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 endif ()
-if (BUILD_SHARED_LIBS)
+if (BUILD_SHARED_LIB)
 add_library (${PROJECT_NAME} SHARED ${SOURCES})
 set_target_properties (${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 target_include_directories (${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/src/"

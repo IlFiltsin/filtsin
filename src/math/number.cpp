@@ -11,7 +11,7 @@
 
 #include <mind/math/number.hpp>
 
-namespace mind {
+namespace mind::math {
 
 	Number::Number(const std::string &value) {
 		this->setValue(value);

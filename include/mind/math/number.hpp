@@ -11,11 +11,12 @@
 
 
 #ifndef NUMBER_MIND
-# define NUMBER_MIND
+#define NUMBER_MIND
 
 #include <mind/other/common.hpp>
 #include <mind/math/smath.hpp>
 #include <mind/exceptions/exception.hpp>
+#include <mind/math/digit.hpp>
 
 #include <string>
 #include <vector>
@@ -26,7 +27,7 @@
 #include <tuple>
 
 
-namespace mind {
+namespace mind::math {
 
 	class Number {
 	public:
@@ -40,17 +41,16 @@ namespace mind {
 		~Number();
 
 		template <typename T>
-		enable_if_integral <T, Number&>
-			operator=(const T &) noexcept;
+		enable_if_integral<T, Number&> operator=(const T &) noexcept;
 
-		Number &operator=(const std::string &) noexcept (!strictMode);
-		Number &operator=(const char *) noexcept (!strictMode);
-		Number &operator=(char) noexcept (!strictMode);
-		Number &operator=(const Number &) noexcept;
-		Number &operator=(Number &&) noexcept;
+		Number& operator=(const std::string &) noexcept(!strictMode);
+		Number& operator=(const char *) noexcept(!strictMode);
+		Number& operator=(char) noexcept(!strictMode);
+		Number& operator=(const Number &) noexcept;
+		Number& operator=(Number &&) noexcept;
 
-		friend std::ostream &operator<<(std::ostream &, const Number &) noexcept;
-		friend std::istream &operator>>(std::istream &, Number &) noexcept (!strictMode);
+		friend std::ostream& operator<<(std::ostream &, const Number &) noexcept;
+		friend std::istream& operator>>(std::istream &, Number &) noexcept(!strictMode);
 
 		friend bool operator==(const Number &, const Number &) noexcept;
 		friend bool operator>(const Number &, const Number &) noexcept;
@@ -87,11 +87,11 @@ namespace mind {
 		template <typename T>
 		enable_if_integral<T,Number> friend operator%(const T &,const Number &) noexcept;
 
-		friend Number &operator+=(Number &, const Number &) noexcept;
-		friend Number &operator-=(Number &, const Number &) noexcept;
-		friend Number &operator*=(Number &, const Number &) noexcept;
-		friend Number &operator/=(Number &, const Number &) noexcept;
-		friend Number &operator%=(Number &, const Number &) noexcept;
+		friend Number& operator+=(Number &, const Number &) noexcept;
+		friend Number& operator-=(Number &, const Number &) noexcept;
+		friend Number& operator*=(Number &, const Number &) noexcept;
+		friend Number& operator/=(Number &, const Number &) noexcept;
+		friend Number& operator%=(Number &, const Number &) noexcept;
 
 		template <typename T>
 		enable_if_integral<T,Number&> friend operator+=(Number &,const T &) noexcept;
@@ -103,21 +103,21 @@ namespace mind {
 		enable_if_integral<T,Number&> friend operator/=(Number &, const T &) noexcept;
 
 		friend Number operator++(Number &, int) noexcept;
-		friend Number &operator++(Number &) noexcept;
+		friend Number& operator++(Number &) noexcept;
 
 		friend Number operator--(Number &, int) noexcept;
-		friend Number &operator--(Number &) noexcept;
+		friend Number& operator--(Number &) noexcept;
 
-		friend const Number &operator+(const Number &);
+		friend const Number& operator+(const Number &);
 		friend const Number operator-(const Number &);
 
 		std::string getString() const noexcept;
 
-		Number &add(const Number &) noexcept;
+		Number& add(const Number &) noexcept;
 		template <typename T>
 		enable_if_integral <T,Number&> add(const T &) noexcept;
 
-		Number &sub(const Number &) noexcept;
+		Number& sub(const Number &) noexcept;
 		template <typename T>
 		enable_if_integral <T,Number&> sub(const T &) noexcept;
 
@@ -125,13 +125,13 @@ namespace mind {
 		template <typename T>
 		enable_if_integral <T,Number&> mul(const T &) noexcept;
 
-		Number &div(const Number &) noexcept (!strictMode);
+		Number& div(const Number &) noexcept(!strictMode);
 		template <typename T>
-		enable_if_integral <T,Number&> div(const T &) noexcept (!strictMode);
+		enable_if_integral <T,Number&> div(const T &) noexcept(!strictMode);
 
-		Number &mod(const Number &) noexcept (!strictMode);
+		Number& mod(const Number &) noexcept(!strictMode);
 		template <typename T>
-		enable_if_integral <T,Number&> mod(const T &) noexcept (!strictMode);
+		enable_if_integral <T,Number&> mod(const T &) noexcept(!strictMode);
 
 		bool isEqual(const Number &) const noexcept;
 
@@ -155,7 +155,7 @@ namespace mind {
 		void allocInfo() noexcept;
 		void clearInfo() noexcept;
 
-		void setValue(std::string) noexcept (!strictMode);
+		void setValue(std::string) noexcept(!strictMode);
 		void setString(const std::string &) noexcept;
 
 		static primitive::ull64 addPrimitive(vr &, primitive::ull64, primitive::ull64 = 0) noexcept;

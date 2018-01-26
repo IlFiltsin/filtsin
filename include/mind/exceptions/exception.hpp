@@ -30,6 +30,11 @@ namespace mind {
 		NumberException(const std::string &str) : MathException(str) {}
 		NumberException(const char *str) : MathException(str) {}
 	};
+	class DigitException : public MathException {
+	public:
+		DigitException(const std::string &str) : MathException(str) {}
+		DigitException(const char *str) : MathException(str) {}
+	};
 }
 
 #endif
