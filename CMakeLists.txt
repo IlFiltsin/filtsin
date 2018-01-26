@@ -24,7 +24,7 @@ set (YELLOW         "${Esc}[1;33m")
 
 project (Mind VERSION ${VERSION_FULL})
 
-set (CMAKE_CXX_FLAGS "-std=c++11 -O2")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_RELEASE} -O2 -std=c++11")
 
 option (BUILD_STATIC_LIB "Build the static library." ON)
 option (BUILD_SHARED_LIB "Build the shared library." ON)

@@ -11,6 +11,8 @@
 
 #include <mind/math/number.hpp>
 
+#include <deque>
+
 namespace mind::math {
 
 	Number::Number(const std::string &value) {
@@ -432,24 +434,39 @@ namespace mind::math {
 		}
 	}
 	void Number::setString(const std::string &value) noexcept {
+
 		const primitive::ull64 size     = value.size();
-								primitive::ull64 last     = (size - 1) % Number::EXPONENT + 1;
+		primitive::ull64 last     			= (size - 1) % Number::EXPONENT + 1;
 		const primitive::ull64 allocate = (size - 1) / Number::EXPONENT + 1;
-								primitive::ull64 index    = 0;
+		primitive::ull64 index    			= 0;
 
 		this->info->realP.resize(allocate);
-		*(this->info->realP.begin() + index++) = std::stoull(value.substr(0,last));
+
+		primitive::ull64 val = 0;
+
+		for (primitive::ull64 i(0); i < last; ++i) {
+			val *= 10;
+			val += value[i] - '0';
+		}
+
+		*(this->info->realP.begin() + index++) = val;
 
 		while (last < size) {
 
-			primitive::ull64 remainder = Number::mulPrimitive(this->info->realP,Number::BASE_TEN,index);
-			remainder += Number::addPrimitive(this->info->realP,std::stoull(value.substr(last,Number::EXPONENT)),index);
+			primitive::ull64 remainder = Number::mulPrimitive(this->info->realP,Number::BASE_TEN,index); // 4000
+
+			primitive::ull64 val = 0;
+
+			for (primitive::ull64 end(last + Number::EXPONENT); last < end && last < size; ++last) {
+				val *= 10;
+				val += value[last] - '0';
+			}
+
+			remainder += Number::addPrimitive(this->info->realP,val,index); // 5000
 
 			if (remainder != 0) {
 				*(this->info->realP.begin() + index++) = remainder;
 			}
-
-			last += Number::EXPONENT;
 
 		}
 
@@ -496,7 +513,6 @@ namespace mind::math {
 
 		for (auto it(vector.begin()), end(vector.begin() + n); it < end; ++it) {
 			auto resultBits = Number::getBitsMul(*it, value);
-
 			*it = std::get<1>(resultBits) + remainder;
 			remainder = (*it < remainder) ? 1 : 0;
 			remainder += std::get<0>(resultBits);
@@ -677,6 +693,7 @@ namespace mind::math {
 
 		return std::make_tuple(leftBit,rightBit);
 	}
+
 	primitive::ull64 Number::mulAddPrimitive(const vr::const_iterator &digitsStart,const vr::const_iterator &digitsEnd, primitive::ull64 value, vr::iterator startPos) noexcept {
 		primitive::ull64 remainder = 0;
 
