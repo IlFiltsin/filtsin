@@ -1,2 +1,4 @@
 cmake <path to lib>
 sudo make install
+
+make test ARGS=-V GTEST_COLOR=1

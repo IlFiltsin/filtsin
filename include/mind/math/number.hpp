@@ -190,7 +190,7 @@ namespace mind::math {
 		static constexpr primitive::ull64 RIGHT_BIT  = 1ull << (HALF_BITS);
 		static constexpr primitive::ull64 BIT_MASK   = RIGHT_BIT - 1;
 		static constexpr primitive::ull64 EXPONENT   = 19;
-		static constexpr primitive::ull64 BASE_TEN   = 10000000000000000000;
+		static constexpr primitive::ull64 BASE_TEN   = 10000000000000000000ull;
 
 	};
 
