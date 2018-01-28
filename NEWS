@@ -1,4 +1,4 @@
-xx.01.2018
+28.01.2018
 	v 1.1.1
 	- Add flags for compile static and/or shared library from cmake 
 	- Add flag for strict mode library

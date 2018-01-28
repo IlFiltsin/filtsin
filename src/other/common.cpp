@@ -12,7 +12,6 @@
 #include <mind/other/common.hpp>
 
 namespace mind {
-
 	void runIfStrictMode (void (*fun)()) {
 		if (strictMode) {
 			fun();

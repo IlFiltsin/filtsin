@@ -23,9 +23,10 @@ git clone https://github.com/IlFiltsin/mind.git
 ### Installation
 Write in terminal in building directory:
 ```bash
-cmake <path to mind dir>
+cmake <path to mind>
 sudo make install
 ```
+**Check the [install](INSTALL) for additional information.**
 ## Using
 ### Add library
 **Static**
@@ -47,5 +48,6 @@ target_link_libraries(${PROJECT_NAME} ${MIND})
 mind::Number a = 2017;
 a++;
 ```
+**Check the [examples](./examples/) for examples of using.**
 ### License
 Mind is freely available for absolutely any use. Please, check the [license](LICENSE).

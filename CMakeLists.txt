@@ -78,7 +78,7 @@ target_include_directories (${PROJECT_NAME} PRIVATE "${SOURCE_DIR}"
 install (TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib)
 endif()
 
-install (DIRECTORY ${HEADER_DIR} DESTINATION include)
+install (DIRECTORY ${HEADER_DIR}/mind DESTINATION include)
 
 if (BUILD_TEST)
 	enable_testing()

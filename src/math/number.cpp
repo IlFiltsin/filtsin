@@ -141,14 +141,14 @@ namespace mind::math {
 		}
 		return Number{};
 	}
-	Number operator/(const Number &lhs, const Number &rhs) noexcept {
+	Number operator/(const Number &lhs, const Number &rhs) noexcept(!strictMode) {
 		if (!lhs.isUndefined() && !rhs.isUndefined()) {
 			Number result = lhs;
 			return result.div(rhs);
 		}
 		return Number{};
 	}
-	Number operator%(const Number &lhs, const Number &rhs) noexcept {
+	Number operator%(const Number &lhs, const Number &rhs) noexcept(!strictMode) {
 		if (!lhs.isUndefined() && !rhs.isUndefined()) {
 			Number result = lhs;
 			return result.mod(rhs);
@@ -165,10 +165,10 @@ namespace mind::math {
 	Number &operator*=(Number &lhs, const Number &rhs) noexcept {
 		return lhs.mul(rhs);
 	}
-	Number &operator/=(Number &lhs, const Number &rhs) noexcept {
+	Number &operator/=(Number &lhs, const Number &rhs) noexcept(!strictMode) {
 		return lhs.div(rhs);
 	}
-	Number &operator%=(Number &lhs, const Number &rhs) noexcept {
+	Number &operator%=(Number &lhs, const Number &rhs) noexcept(!strictMode) {
 		return lhs.mod(rhs);
 	}
 
@@ -351,7 +351,7 @@ namespace mind::math {
 					}
 				}
 			} else {
-				runIfStrictMode([](){throw NumberException("Invalid divider. Can't divide by zero."); });
+				runIfStrictMode([](){throw NumberException("Invalid divider. Can't modulo by zero."); });
 			}
 		}
 		return *this;

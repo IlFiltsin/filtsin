@@ -62,8 +62,8 @@ namespace mind::math {
 		friend Number operator+(const Number &, const Number &) noexcept;
 		friend Number operator-(const Number &, const Number &) noexcept;
 		friend Number operator*(const Number &, const Number &) noexcept;
-		friend Number operator/(const Number &, const Number &) noexcept;
-		friend Number operator%(const Number &, const Number &) noexcept;
+		friend Number operator/(const Number &, const Number &) noexcept(!strictMode);
+		friend Number operator%(const Number &, const Number &) noexcept(!strictMode);
 
 		template <typename T>
 		enable_if_integral<T,Number> friend operator+(const Number &, const T &) noexcept;
@@ -72,9 +72,9 @@ namespace mind::math {
 		template <typename T>
 		enable_if_integral<T,Number> friend operator*(const Number &, const T &) noexcept;
 		template <typename T>
-		enable_if_integral<T,Number> friend operator/(const Number &, const T &) noexcept;
+		enable_if_integral<T,Number> friend operator/(const Number &, const T &) noexcept(!strictMode);
 		template <typename T>
-		enable_if_integral<T,Number> friend operator%(const Number &, const T &) noexcept;
+		enable_if_integral<T,Number> friend operator%(const Number &, const T &) noexcept(!strictMode);
 
 		template <typename T>
 		enable_if_integral<T,Number> friend operator+(const T &, const Number &) noexcept;
@@ -83,15 +83,15 @@ namespace mind::math {
 		template <typename T>
 		enable_if_integral<T,Number> friend operator*(const T &,const Number &) noexcept;
 		template <typename T>
-		enable_if_integral<T,Number> friend operator/(const T &,const Number &) noexcept;
+		enable_if_integral<T,Number> friend operator/(const T &,const Number &) noexcept(!strictMode);
 		template <typename T>
-		enable_if_integral<T,Number> friend operator%(const T &,const Number &) noexcept;
+		enable_if_integral<T,Number> friend operator%(const T &,const Number &) noexcept(!strictMode);
 
 		friend Number& operator+=(Number &, const Number &) noexcept;
 		friend Number& operator-=(Number &, const Number &) noexcept;
 		friend Number& operator*=(Number &, const Number &) noexcept;
-		friend Number& operator/=(Number &, const Number &) noexcept;
-		friend Number& operator%=(Number &, const Number &) noexcept;
+		friend Number& operator/=(Number &, const Number &) noexcept(!strictMode);
+		friend Number& operator%=(Number &, const Number &) noexcept(!strictMode);
 
 		template <typename T>
 		enable_if_integral<T,Number&> friend operator+=(Number &,const T &) noexcept;
@@ -100,7 +100,7 @@ namespace mind::math {
 		template <typename T>
 		enable_if_integral<T,Number&> friend operator*=(Number &, const T &) noexcept;
 		template <typename T>
-		enable_if_integral<T,Number&> friend operator/=(Number &, const T &) noexcept;
+		enable_if_integral<T,Number&> friend operator/=(Number &, const T &) noexcept(!strictMode);
 
 		friend Number operator++(Number &, int) noexcept;
 		friend Number& operator++(Number &) noexcept;
@@ -238,7 +238,7 @@ namespace mind::math {
 		return Number{};
 	}
 	template <typename T>
-	enable_if_integral<T,Number> operator/(const Number &lhs, const T &value) noexcept {
+	enable_if_integral<T,Number> operator/(const Number &lhs, const T &value) noexcept(!strictMode) {
 		if (!lhs.isUndefined()) {
 			Number result = lhs;
 			return result.div(value);
@@ -246,7 +246,7 @@ namespace mind::math {
 		return Number{};
 	}
 	template <typename T>
-	enable_if_integral<T,Number> operator%(const Number &lhs, const T &value) noexcept {
+	enable_if_integral<T,Number> operator%(const Number &lhs, const T &value) noexcept(!strictMode) {
 		if (!lhs.isUndefined()) {
 			Number result = lhs;
 			return result.mod(value);
@@ -271,7 +271,7 @@ namespace mind::math {
 		return rhs * value;
 	}
 	template <typename T>
-	enable_if_integral<T,Number> operator/(const T &value,const Number &rhs) noexcept {
+	enable_if_integral<T,Number> operator/(const T &value,const Number &rhs) noexcept(!strictMode) {
 		if (!rhs.isUndefined()) {
 			Number result = value;
 			return result.div(rhs);
@@ -279,7 +279,7 @@ namespace mind::math {
 		return Number{};
 	}
 	template <typename T>
-	enable_if_integral<T,Number> operator%(const T &value,const Number &rhs) noexcept {
+	enable_if_integral<T,Number> operator%(const T &value,const Number &rhs) noexcept(!strictMode) {
 		if (!rhs.isUndefined()) {
 			Number result = value;
 			return result.mod(rhs);
@@ -300,7 +300,7 @@ namespace mind::math {
 		return lhs.mul(value);
 	}
 	template <typename T>
-	enable_if_integral<T,Number&> operator/=(Number &lhs, const T &value) noexcept {
+	enable_if_integral<T,Number&> operator/=(Number &lhs, const T &value) noexcept(!strictMode) {
 		return lhs.div(value);
 	}
 
