@@ -30,8 +30,8 @@ if (WIN32 OR WIN64 OR APPLE)
 endif()
 
 # Print information
-message (STATUS "${PROJECT_NAME} - starting cmake")
-message (STATUS "${PROJECT_NAME} version: ${VERSION_FULL}")
+message (STATUS "${PROJECT_NAME}")
+message (STATUS "Version: ${VERSION_FULL}")
 message (STATUS "Cmake generator: ${CMAKE_GENERATOR}")
 
 # Check build folder
@@ -78,7 +78,7 @@ target_include_directories (${PROJECT_NAME} PRIVATE "${SOURCE_DIR}"
 install (TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib)
 endif()
 
-install (DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include)
+install (DIRECTORY ${HEADER_DIR} DESTINATION include)
 
 if (BUILD_TEST)
 	enable_testing()
@@ -89,7 +89,20 @@ if (BUILD_TEST)
 	set (TEST_DIR ${CMAKE_SOURCE_DIR}/test)
 
 	set (TEST_SOURCES 
-		${TEST_DIR}/test.cpp
+
+		# Number test
+		${TEST_DIR}/testNumberSum.cpp
+		${TEST_DIR}/testNumberSub.cpp
+		${TEST_DIR}/testNumberMul.cpp
+		${TEST_DIR}/testNumberDiv.cpp
+		${TEST_DIR}/testNumberMod.cpp
+
+		# Math test
+		${TEST_DIR}/testMathSgn.cpp
+		${TEST_DIR}/testMathAbs.cpp
+		${TEST_DIR}/testMathCnt.cpp
+		${TEST_DIR}/testMathPow.cpp
+
 		)
 
 	if (BUILD_SHARED_LIB) 

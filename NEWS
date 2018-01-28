@@ -1,9 +1,14 @@
 xx.01.2018
+	v 1.1.1
 	- Add flags for compile static and/or shared library from cmake 
 	- Add flag for strict mode library
 	- Rework of exceptions classes
+	- Add digit class
+	- Small optimization for set value of Number
+	- Number now in mind::math namespace
 
 14.01.2018
+	v 1.1.0
 	- Fixed incorrect multiplication for var *= var
 	- Fixed incorrect multiplication if first operand have bigger size than second
 	- Fixed bug with remainder in mulAddPrimitive function

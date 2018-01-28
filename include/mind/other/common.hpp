@@ -38,6 +38,9 @@ namespace mind {
 	template <typename T, typename R>
 	using enable_if_integral = typename std::enable_if<std::is_integral<T>::value && !std::is_same<T,char>::value,R>::type;
 
+	template <typename T, typename F, typename R>
+	using enable_if_integral_t = typename std::enable_if<std::is_integral<T>::value && !std::is_same<T,char>::value && std::is_integral<F>::value && !std::is_same<F,char>::value,R>::type;
+
 
 }
 
