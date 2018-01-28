@@ -45,7 +45,7 @@ target_link_libraries(${PROJECT_NAME} ${MIND})
 ```
 ### Continue using
 ```c++
-mind::Number a = 2017;
+mind::math::Number a = 2017;
 a++;
 ```
 **Check the [examples](./examples/) for examples of using.**
