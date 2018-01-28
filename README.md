@@ -23,9 +23,10 @@ git clone https://github.com/IlFiltsin/mind.git
 ### Installation
 Write in terminal in building directory:
 ```bash
-cmake <path to mind dir>
+cmake <path to mind>
 sudo make install
 ```
+**Check the [install](INSTALL) for additional information.**
 ## Using
 ### Add library
 **Static**
@@ -33,7 +34,7 @@ sudo make install
 find_library(MIND libMind.a)
 target_link_libraries(${PROJECT_NAME} ${MIND})
 ```
-**Dynamic**
+**Shared**
 ```cmake
 find_library(MIND Mind)
 target_link_libraries(${PROJECT_NAME} ${MIND})
@@ -44,8 +45,9 @@ target_link_libraries(${PROJECT_NAME} ${MIND})
 ```
 ### Continue using
 ```c++
-mind::Number a = 2017;
+mind::math::Number a = 2017;
 a++;
 ```
+**Check the [examples](./examples/) for examples of using.**
 ### License
 Mind is freely available for absolutely any use. Please, check the [license](LICENSE).

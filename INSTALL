@@ -1,2 +1,29 @@
-cmake <path to lib>
-sudo make install
+1. Create folder for building project
+
+	[~] mkdir mind-build && cd mind-build
+
+2. cmake mind lib
+
+	You can use some cmake flags:
+		- DBUILD_STATIC_LIB = OFF (set OFF if you dont want build the static library)
+	    - DBUILD_SHARED_LIB = OFF (set OFF if you dont want build the shared library)
+	    - DBUILD_TEST = ON (set ON if you want build the test for library) - needed gtest
+	    - DMIND_STRICT = ON (set ON if you want strict mode of library with exceptions), add -DMIND_STRICT flag after 
+
+	[~/mind-build] cmake <path to mind> <flags>
+
+3. make
+
+	[~/mind-build] make
+
+4. If you builded test
+
+	[~/mind-build] make test
+
+	or for google test interface
+
+	[~/mind-build] make test ARGS=-V GTEST_COLOR=1
+
+5. Install library
+
+	[~/mind-build] sudo make install

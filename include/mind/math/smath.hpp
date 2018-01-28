@@ -17,8 +17,6 @@
 
 namespace mind::math {
 
-	createExceptionClass(MathException);
-
 	template <typename T>
 	enable_if_integral <T,int> sgn(const T &) noexcept;
 	template <typename T>

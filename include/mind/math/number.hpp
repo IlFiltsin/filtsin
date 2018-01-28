@@ -11,11 +11,12 @@
 
 
 #ifndef NUMBER_MIND
-# define NUMBER_MIND
+#define NUMBER_MIND
 
 #include <mind/other/common.hpp>
 #include <mind/math/smath.hpp>
 #include <mind/exceptions/exception.hpp>
+#include <mind/math/digit.hpp>
 
 #include <string>
 #include <vector>
@@ -26,9 +27,7 @@
 #include <tuple>
 
 
-namespace mind {
-
-	createExceptionClass(NumberException);
+namespace mind::math {
 
 	class Number {
 	public:
@@ -42,17 +41,16 @@ namespace mind {
 		~Number();
 
 		template <typename T>
-		enable_if_integral <T, Number&>
-			operator=(const T &) noexcept;
+		enable_if_integral<T, Number&> operator=(const T &) noexcept;
 
-		Number &operator=(const std::string &) noexcept(strictMode);
-		Number &operator=(const char *) noexcept(strictMode);
-		Number &operator=(char) noexcept(strictMode);
-		Number &operator=(const Number &) noexcept;
-		Number &operator=(Number &&) noexcept;
+		Number& operator=(const std::string &) noexcept(!strictMode);
+		Number& operator=(const char *) noexcept(!strictMode);
+		Number& operator=(char) noexcept(!strictMode);
+		Number& operator=(const Number &) noexcept;
+		Number& operator=(Number &&) noexcept;
 
-		friend std::ostream &operator<<(std::ostream &, const Number &) noexcept;
-		friend std::istream &operator>>(std::istream &, Number &) noexcept(strictMode);
+		friend std::ostream& operator<<(std::ostream &, const Number &) noexcept;
+		friend std::istream& operator>>(std::istream &, Number &) noexcept(!strictMode);
 
 		friend bool operator==(const Number &, const Number &) noexcept;
 		friend bool operator>(const Number &, const Number &) noexcept;
@@ -64,8 +62,8 @@ namespace mind {
 		friend Number operator+(const Number &, const Number &) noexcept;
 		friend Number operator-(const Number &, const Number &) noexcept;
 		friend Number operator*(const Number &, const Number &) noexcept;
-		friend Number operator/(const Number &, const Number &) noexcept;
-		friend Number operator%(const Number &, const Number &) noexcept;
+		friend Number operator/(const Number &, const Number &) noexcept(!strictMode);
+		friend Number operator%(const Number &, const Number &) noexcept(!strictMode);
 
 		template <typename T>
 		enable_if_integral<T,Number> friend operator+(const Number &, const T &) noexcept;
@@ -74,9 +72,9 @@ namespace mind {
 		template <typename T>
 		enable_if_integral<T,Number> friend operator*(const Number &, const T &) noexcept;
 		template <typename T>
-		enable_if_integral<T,Number> friend operator/(const Number &, const T &) noexcept;
+		enable_if_integral<T,Number> friend operator/(const Number &, const T &) noexcept(!strictMode);
 		template <typename T>
-		enable_if_integral<T,Number> friend operator%(const Number &, const T &) noexcept;
+		enable_if_integral<T,Number> friend operator%(const Number &, const T &) noexcept(!strictMode);
 
 		template <typename T>
 		enable_if_integral<T,Number> friend operator+(const T &, const Number &) noexcept;
@@ -85,15 +83,15 @@ namespace mind {
 		template <typename T>
 		enable_if_integral<T,Number> friend operator*(const T &,const Number &) noexcept;
 		template <typename T>
-		enable_if_integral<T,Number> friend operator/(const T &,const Number &) noexcept;
+		enable_if_integral<T,Number> friend operator/(const T &,const Number &) noexcept(!strictMode);
 		template <typename T>
-		enable_if_integral<T,Number> friend operator%(const T &,const Number &) noexcept;
+		enable_if_integral<T,Number> friend operator%(const T &,const Number &) noexcept(!strictMode);
 
-		friend Number &operator+=(Number &, const Number &) noexcept;
-		friend Number &operator-=(Number &, const Number &) noexcept;
-		friend Number &operator*=(Number &, const Number &) noexcept;
-		friend Number &operator/=(Number &, const Number &) noexcept;
-		friend Number &operator%=(Number &, const Number &) noexcept;
+		friend Number& operator+=(Number &, const Number &) noexcept;
+		friend Number& operator-=(Number &, const Number &) noexcept;
+		friend Number& operator*=(Number &, const Number &) noexcept;
+		friend Number& operator/=(Number &, const Number &) noexcept(!strictMode);
+		friend Number& operator%=(Number &, const Number &) noexcept(!strictMode);
 
 		template <typename T>
 		enable_if_integral<T,Number&> friend operator+=(Number &,const T &) noexcept;
@@ -102,24 +100,24 @@ namespace mind {
 		template <typename T>
 		enable_if_integral<T,Number&> friend operator*=(Number &, const T &) noexcept;
 		template <typename T>
-		enable_if_integral<T,Number&> friend operator/=(Number &, const T &) noexcept;
+		enable_if_integral<T,Number&> friend operator/=(Number &, const T &) noexcept(!strictMode);
 
 		friend Number operator++(Number &, int) noexcept;
-		friend Number &operator++(Number &) noexcept;
+		friend Number& operator++(Number &) noexcept;
 
 		friend Number operator--(Number &, int) noexcept;
-		friend Number &operator--(Number &) noexcept;
+		friend Number& operator--(Number &) noexcept;
 
-		friend const Number &operator+(const Number &);
+		friend const Number& operator+(const Number &);
 		friend const Number operator-(const Number &);
 
 		std::string getString() const noexcept;
 
-		Number &add(const Number &) noexcept;
+		Number& add(const Number &) noexcept;
 		template <typename T>
 		enable_if_integral <T,Number&> add(const T &) noexcept;
 
-		Number &sub(const Number &) noexcept;
+		Number& sub(const Number &) noexcept;
 		template <typename T>
 		enable_if_integral <T,Number&> sub(const T &) noexcept;
 
@@ -127,13 +125,13 @@ namespace mind {
 		template <typename T>
 		enable_if_integral <T,Number&> mul(const T &) noexcept;
 
-		Number &div(const Number &) noexcept(strictMode);
+		Number& div(const Number &) noexcept(!strictMode);
 		template <typename T>
-		enable_if_integral <T,Number&> div(const T &) noexcept(strictMode);
+		enable_if_integral <T,Number&> div(const T &) noexcept(!strictMode);
 
-		Number &mod(const Number &) noexcept(strictMode);
+		Number& mod(const Number &) noexcept(!strictMode);
 		template <typename T>
-		enable_if_integral <T,Number&> mod(const T &) noexcept(strictMode);
+		enable_if_integral <T,Number&> mod(const T &) noexcept(!strictMode);
 
 		bool isEqual(const Number &) const noexcept;
 
@@ -157,7 +155,7 @@ namespace mind {
 		void allocInfo() noexcept;
 		void clearInfo() noexcept;
 
-		void setValue(std::string) noexcept(strictMode);
+		void setValue(std::string) noexcept(!strictMode);
 		void setString(const std::string &) noexcept;
 
 		static primitive::ull64 addPrimitive(vr &, primitive::ull64, primitive::ull64 = 0) noexcept;
@@ -192,7 +190,7 @@ namespace mind {
 		static constexpr primitive::ull64 RIGHT_BIT  = 1ull << (HALF_BITS);
 		static constexpr primitive::ull64 BIT_MASK   = RIGHT_BIT - 1;
 		static constexpr primitive::ull64 EXPONENT   = 19;
-		static constexpr primitive::ull64 BASE_TEN   = 10000000000000000000;
+		static constexpr primitive::ull64 BASE_TEN   = 10000000000000000000ull;
 
 	};
 
@@ -240,7 +238,7 @@ namespace mind {
 		return Number{};
 	}
 	template <typename T>
-	enable_if_integral<T,Number> operator/(const Number &lhs, const T &value) noexcept {
+	enable_if_integral<T,Number> operator/(const Number &lhs, const T &value) noexcept(!strictMode) {
 		if (!lhs.isUndefined()) {
 			Number result = lhs;
 			return result.div(value);
@@ -248,7 +246,7 @@ namespace mind {
 		return Number{};
 	}
 	template <typename T>
-	enable_if_integral<T,Number> operator%(const Number &lhs, const T &value) noexcept {
+	enable_if_integral<T,Number> operator%(const Number &lhs, const T &value) noexcept(!strictMode) {
 		if (!lhs.isUndefined()) {
 			Number result = lhs;
 			return result.mod(value);
@@ -273,7 +271,7 @@ namespace mind {
 		return rhs * value;
 	}
 	template <typename T>
-	enable_if_integral<T,Number> operator/(const T &value,const Number &rhs) noexcept {
+	enable_if_integral<T,Number> operator/(const T &value,const Number &rhs) noexcept(!strictMode) {
 		if (!rhs.isUndefined()) {
 			Number result = value;
 			return result.div(rhs);
@@ -281,7 +279,7 @@ namespace mind {
 		return Number{};
 	}
 	template <typename T>
-	enable_if_integral<T,Number> operator%(const T &value,const Number &rhs) noexcept {
+	enable_if_integral<T,Number> operator%(const T &value,const Number &rhs) noexcept(!strictMode) {
 		if (!rhs.isUndefined()) {
 			Number result = value;
 			return result.mod(rhs);
@@ -302,7 +300,7 @@ namespace mind {
 		return lhs.mul(value);
 	}
 	template <typename T>
-	enable_if_integral<T,Number&> operator/=(Number &lhs, const T &value) noexcept {
+	enable_if_integral<T,Number&> operator/=(Number &lhs, const T &value) noexcept(!strictMode) {
 		return lhs.div(value);
 	}
 
@@ -382,7 +380,7 @@ namespace mind {
 	}
 
 	template <typename T>
-	enable_if_integral <T,Number&> Number::div(const T &value) noexcept(strictMode) {
+	enable_if_integral <T,Number&> Number::div(const T &value) noexcept(!strictMode) {
 		if (!this->isUndefined()) {
 			if (value != 0) {
 				if (*this < value) {
@@ -399,7 +397,7 @@ namespace mind {
 	}
 
 	template <typename T>
-	enable_if_integral <T,Number&> Number::mod(const T &value) noexcept(strictMode) {
+	enable_if_integral <T,Number&> Number::mod(const T &value) noexcept(!strictMode) {
 		if (!this->isUndefined()) {
 			if (value != 0) {
 				this->info->realP = vr{Number::divPrimitive(this->info->realP,math::abs(value))};

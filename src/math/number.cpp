@@ -11,7 +11,9 @@
 
 #include <mind/math/number.hpp>
 
-namespace mind {
+#include <deque>
+
+namespace mind::math {
 
 	Number::Number(const std::string &value) {
 		this->setValue(value);
@@ -29,15 +31,15 @@ namespace mind {
 		delete this->info;
 	}
 
-	Number& Number::operator=(const std::string &value) noexcept(strictMode) {
+	Number& Number::operator=(const std::string &value) noexcept(!strictMode) {
 		this->setValue(value);
 		return *this;
 	}
-	Number& Number::operator=(const char *value) noexcept(strictMode) {
+	Number& Number::operator=(const char *value) noexcept(!strictMode) {
 		this->setValue(value);
 		return *this;
 	}
-	Number& Number::operator=(char value) noexcept(strictMode) {
+	Number& Number::operator=(char value) noexcept(!strictMode) {
 		if (isdigit(value)) {
 			this->allocInfo();
 			this->clearInfo();
@@ -70,7 +72,7 @@ namespace mind {
 		os << obj.getString();
 		return os;
 	}
-	std::istream& operator>>(std::istream &is, Number &obj) noexcept(strictMode) {
+	std::istream& operator>>(std::istream &is, Number &obj) noexcept(!strictMode) {
 		std::string value;
 		is >> value;
 		obj = value;
@@ -139,14 +141,14 @@ namespace mind {
 		}
 		return Number{};
 	}
-	Number operator/(const Number &lhs, const Number &rhs) noexcept {
+	Number operator/(const Number &lhs, const Number &rhs) noexcept(!strictMode) {
 		if (!lhs.isUndefined() && !rhs.isUndefined()) {
 			Number result = lhs;
 			return result.div(rhs);
 		}
 		return Number{};
 	}
-	Number operator%(const Number &lhs, const Number &rhs) noexcept {
+	Number operator%(const Number &lhs, const Number &rhs) noexcept(!strictMode) {
 		if (!lhs.isUndefined() && !rhs.isUndefined()) {
 			Number result = lhs;
 			return result.mod(rhs);
@@ -163,10 +165,10 @@ namespace mind {
 	Number &operator*=(Number &lhs, const Number &rhs) noexcept {
 		return lhs.mul(rhs);
 	}
-	Number &operator/=(Number &lhs, const Number &rhs) noexcept {
+	Number &operator/=(Number &lhs, const Number &rhs) noexcept(!strictMode) {
 		return lhs.div(rhs);
 	}
-	Number &operator%=(Number &lhs, const Number &rhs) noexcept {
+	Number &operator%=(Number &lhs, const Number &rhs) noexcept(!strictMode) {
 		return lhs.mod(rhs);
 	}
 
@@ -321,7 +323,7 @@ namespace mind {
 		return *this;
 	}
 
-	Number& Number::div(const Number &value) noexcept(strictMode) {
+	Number& Number::div(const Number &value) noexcept(!strictMode) {
 		if (!this->isUndefined() && !value.isUndefined()) {
 			if (!value.isZero()) {
 				if (!this->isZero()) {
@@ -339,7 +341,7 @@ namespace mind {
 		return *this;
 	}
 
-	Number& Number::mod(const Number &value) noexcept(strictMode) {
+	Number& Number::mod(const Number &value) noexcept(!strictMode) {
 		if (!this->isUndefined() && !value.isUndefined()) {
 			if (!value.isZero()) {
 				if (this->info->realP.size() >= value.info->realP.size()) {
@@ -349,7 +351,7 @@ namespace mind {
 					}
 				}
 			} else {
-				runIfStrictMode([](){throw NumberException("Invalid divider. Can't divide by zero."); });
+				runIfStrictMode([](){throw NumberException("Invalid divider. Can't modulo by zero."); });
 			}
 		}
 		return *this;
@@ -390,7 +392,7 @@ namespace mind {
 		}
 	}
 
-	void Number::setValue(std::string value) noexcept(strictMode) {
+	void Number::setValue(std::string value) noexcept(!strictMode) {
 		int sign = 1;
 
 		while (isspace(*value.cbegin())) {
@@ -432,24 +434,39 @@ namespace mind {
 		}
 	}
 	void Number::setString(const std::string &value) noexcept {
+
 		const primitive::ull64 size     = value.size();
-								primitive::ull64 last     = (size - 1) % Number::EXPONENT + 1;
+		primitive::ull64 last     			= (size - 1) % Number::EXPONENT + 1;
 		const primitive::ull64 allocate = (size - 1) / Number::EXPONENT + 1;
-								primitive::ull64 index    = 0;
+		primitive::ull64 index    			= 0;
 
 		this->info->realP.resize(allocate);
-		*(this->info->realP.begin() + index++) = std::stoull(value.substr(0,last));
+
+		primitive::ull64 val = 0;
+
+		for (primitive::ull64 i(0); i < last; ++i) {
+			val *= 10;
+			val += value[i] - '0';
+		}
+
+		*(this->info->realP.begin() + index++) = val;
 
 		while (last < size) {
 
-			primitive::ull64 remainder = Number::mulPrimitive(this->info->realP,Number::BASE_TEN,index);
-			remainder += Number::addPrimitive(this->info->realP,std::stoull(value.substr(last,Number::EXPONENT)),index);
+			primitive::ull64 remainder = Number::mulPrimitive(this->info->realP,Number::BASE_TEN,index); // 4000
+
+			primitive::ull64 val = 0;
+
+			for (primitive::ull64 end(last + Number::EXPONENT); last < end && last < size; ++last) {
+				val *= 10;
+				val += value[last] - '0';
+			}
+
+			remainder += Number::addPrimitive(this->info->realP,val,index); // 5000
 
 			if (remainder != 0) {
 				*(this->info->realP.begin() + index++) = remainder;
 			}
-
-			last += Number::EXPONENT;
 
 		}
 
@@ -496,7 +513,6 @@ namespace mind {
 
 		for (auto it(vector.begin()), end(vector.begin() + n); it < end; ++it) {
 			auto resultBits = Number::getBitsMul(*it, value);
-
 			*it = std::get<1>(resultBits) + remainder;
 			remainder = (*it < remainder) ? 1 : 0;
 			remainder += std::get<0>(resultBits);
@@ -677,6 +693,7 @@ namespace mind {
 
 		return std::make_tuple(leftBit,rightBit);
 	}
+
 	primitive::ull64 Number::mulAddPrimitive(const vr::const_iterator &digitsStart,const vr::const_iterator &digitsEnd, primitive::ull64 value, vr::iterator startPos) noexcept {
 		primitive::ull64 remainder = 0;
 
