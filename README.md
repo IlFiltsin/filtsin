@@ -31,12 +31,12 @@ sudo make install
 ### Add library
 **Static**
 ```cmake
-find_library(MIND libMind.a)
+find_library(MIND libmind.a)
 target_link_libraries(${PROJECT_NAME} ${MIND})
 ```
 **Shared**
 ```cmake
-find_library(MIND Mind)
+find_library(MIND mind)
 target_link_libraries(${PROJECT_NAME} ${MIND})
 ```
 ### Add all necessary headers

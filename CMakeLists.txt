@@ -25,7 +25,7 @@ option (BUILD_SHARED_LIB "Build the shared library." ON)
 option (BUILD_TEST "Build the test." OFF)
 option (MIND_STRICT  "Strict mode for Mind library." OFF)
 
-if (WIN32 OR WIN64 OR APPLE)
+if (WIN32 OR APPLE)
 	message (WARNING "Windows OS and Apple OS is not currently officially supported.")
 endif()
 
@@ -75,7 +75,11 @@ add_library (${PROJECT_NAME} SHARED ${SOURCES})
 set_target_properties (${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 target_include_directories (${PROJECT_NAME} PRIVATE "${SOURCE_DIR}"
 											PUBLIC "${HEADER_DIR}")
-install (TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib)
+	if (WIN32)
+		install (TARGETS ${PROJECT_NAME} RUNTIME DESTINATION lib)
+	else ()
+		install (TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib)
+	endif()
 endif()
 
 install (DIRECTORY ${HEADER_DIR}/mind DESTINATION include)

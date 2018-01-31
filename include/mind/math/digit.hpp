@@ -17,53 +17,56 @@
 
 #include <istream>
 
-namespace mind::math {
+namespace mind {
+    namespace math {
+        class Digit {
+        public:
+        Digit() = default;
+        template <typename T>
+        Digit(const T &, typename std::enable_if<std::is_integral<T>::value>::type* = nullptr);
+        ~Digit() = default;
 
- class Digit {
- public:
-  Digit() = default;
-  template <typename T>
-  Digit(const T &, typename std::enable_if<std::is_integral<T>::value>::type* = nullptr);
-  ~Digit() = default;
+        template <typename T>
+        enable_if_integral<T, Digit&> operator=(const T &) noexcept(!strictMode);
+        Digit& operator=(char) noexcept(!strictMode);
 
-  template <typename T>
-  enable_if_integral<T, Digit&> operator=(const T &) noexcept(!strictMode);
-  Digit& operator=(char) noexcept(!strictMode);
+        friend std::ostream& operator<<(std::ostream &, const Digit &) noexcept;
+        friend std::istream& operator>>(std::istream &, Digit &) noexcept(!strictMode);
 
-  friend std::ostream& operator<<(std::ostream &, const Digit &) noexcept;
-  friend std::istream& operator>>(std::istream &, Digit &) noexcept(!strictMode);
+        friend bool operator==(const Digit &, const Digit &) noexcept;
+        friend bool operator>(const Digit &, const Digit &) noexcept;
+        friend bool operator<(const Digit &, const Digit &) noexcept;
+        friend bool operator>=(const Digit &, const Digit &) noexcept;
+        friend bool operator<=(const Digit &, const Digit &) noexcept;
+        friend bool operator!=(const Digit &, const Digit &) noexcept;
 
-  friend bool operator==(const Digit &, const Digit &) noexcept;
-  friend bool operator>(const Digit &, const Digit &) noexcept;
-  friend bool operator<(const Digit &, const Digit &) noexcept;
-  friend bool operator>=(const Digit &, const Digit &) noexcept;
-  friend bool operator<=(const Digit &, const Digit &) noexcept;
-  friend bool operator!=(const Digit &, const Digit &) noexcept;
+        operator char() const;
+        operator int() const;
 
- private:
-  unsigned int value;
- };
+        private: 
+        unsigned int value;
+        };
 
- // ##############################################################################################
- // 									                         Templates methods
- // ##############################################################################################
+        // ##############################################################################################
+        // Templates methods
+        // ##############################################################################################
 
- template <typename T>
- Digit::Digit(const T &value, typename std::enable_if<std::is_integral<T>::value>::type *) {
-  *this = value;
- }
+        template <typename T>
+        Digit::Digit(const T &value, typename std::enable_if<std::is_integral<T>::value>::type *) {
+        *this = value;
+        }
 
- template <typename T>
- enable_if_integral <T, Digit&> Digit::operator=(const T &value) noexcept(!strictMode) {
-  if (value < 0 || value > 9) {
-   runIfStrictMode([]() {throw DigitException("Invalid digit. Use only one digit to set value.");});
-   this->value = 0;
-  } else {
-   this->value = value;
-  }
-  return *this;
- }
-
+        template <typename T>
+        enable_if_integral <T, Digit&> Digit::operator=(const T &value) noexcept(!strictMode) {
+        if (value < 0 || value > 9) {
+        runIfStrictMode([]() {throw DigitException("Invalid digit. Use only one digit to set value.");});
+        this->value = 0;
+        } else {
+        this->value = value;
+        }
+        return *this;
+        }
+    }
 }
 
 #endif
