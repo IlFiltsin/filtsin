@@ -8,9 +8,7 @@
 # See COPYING for details.
 #
  ====----------------------------------------------------------------------====*/
-
 #include <mind/math/number.hpp>
-
 
 namespace mind {
     namespace math {
@@ -46,7 +44,7 @@ namespace mind {
             if (isdigit(value)) {
                 this->allocInfo();
                 this->clearInfo();
-                this->info->realP.emplace_back(value - '0');
+                this->info->bits.emplace_back(value - '0');
                 this->info->sign = 1;
             } else {
                 runIfStrictMode([]() {throw NumberException("Invalid symbol. Use only one digit to set value.");});
@@ -94,9 +92,9 @@ namespace mind {
             if (!lhs.isUndefined() && !rhs.isUndefined()) {
                 if (lhs.info->sign == rhs.info->sign) {
                     if (lhs.isPositive()) {
-                        return Number::cmpVector(lhs.info->realP,rhs.info->realP) == 1;
+                        return Number::cmpVector(lhs.info->bits,rhs.info->bits) == 1;
                     } else {
-                        return Number::cmpVector(lhs.info->realP,rhs.info->realP) == -1;
+                        return Number::cmpVector(lhs.info->bits,rhs.info->bits) == -1;
                     }
                 } else {
                     return lhs.info->sign > rhs.info->sign;
@@ -108,9 +106,9 @@ namespace mind {
             if (!lhs.isUndefined() && !rhs.isUndefined()) {
                 if (lhs.info->sign == rhs.info->sign) {
                     if (lhs.isPositive()) {
-                        return Number::cmpVector(lhs.info->realP,rhs.info->realP) == -1;
+                        return Number::cmpVector(lhs.info->bits,rhs.info->bits) == -1;
                     } else {
-                        return Number::cmpVector(lhs.info->realP,rhs.info->realP) == 1;
+                        return Number::cmpVector(lhs.info->bits,rhs.info->bits) == 1;
                     }
                 } else {
                     return lhs.info->sign < rhs.info->sign;
@@ -216,15 +214,15 @@ namespace mind {
 
             if (!this->isUndefined()) {
                 if (!this->isLong()) {
-                    result = std::to_string(*this->info->realP.cbegin());
+                    result = std::to_string(*this->info->bits.cbegin());
                 } else {
 
-                    vr realPCopy = this->info->realP;
-                    primitive::tick count = realPCopy.size();
+                    vr bitsCopy = this->info->bits;
+                    primitive::tick count = bitsCopy.size();
 
                     do {
 
-                        const primitive::ull64 partOfResult = Number::divPrimitive(realPCopy,Number::BASE_TEN);
+                        const primitive::ull64 partOfResult = Number::divPrimitive(bitsCopy,Number::BASE_TEN);
                         result.insert(0, std::to_string(partOfResult));
 
                         primitive::tick curSize = math::cnt(partOfResult);
@@ -234,14 +232,14 @@ namespace mind {
                             }
                         }
 
-                        if (*(realPCopy.cbegin() + count - 1) == 0) {
+                        if (*(bitsCopy.cbegin() + count - 1) == 0) {
                             count--;
                         }
 
                     } while (count > 1);
 
-                    if (*realPCopy.cbegin() != 0) {
-                        result.insert(0,std::to_string(*realPCopy.cbegin()));
+                    if (*bitsCopy.cbegin() != 0) {
+                        result.insert(0,std::to_string(*bitsCopy.cbegin()));
                     }
 
                 }
@@ -266,21 +264,21 @@ namespace mind {
                 if (this->isZero()) {
                     *this = value;
                 } else if (this->info->sign == value.info->sign) {
-                    Number::addVector(this->info->realP, value.info->realP);
+                    Number::addVector(this->info->bits, value.info->bits);
                 } else {
-                    switch (Number::cmpVector(this->info->realP,value.info->realP)) {
+                    switch (Number::cmpVector(this->info->bits,value.info->bits)) {
                         case 0:
                             *this = 0;
                             break;
                         case -1: {
-                            auto copy = this->info->realP;
-                            this->info->realP = value.info->realP;
-                            Number::subVector(this->info->realP, copy);
+                            auto copy = this->info->bits;
+                            this->info->bits = value.info->bits;
+                            Number::subVector(this->info->bits, copy);
                             this->info->sign *= -1;
                             break;
                         }
                         case 1:
-                            Number::subVector(this->info->realP,value.info->realP);
+                            Number::subVector(this->info->bits,value.info->bits);
                             break;
                     }
                 }
@@ -294,23 +292,23 @@ namespace mind {
                     *this = value;
                     this->info->sign *= -1;
                 } else if (this->info->sign == value.info->sign) {
-                    switch (Number::cmpVector(this->info->realP,value.info->realP)) {
+                    switch (Number::cmpVector(this->info->bits,value.info->bits)) {
                         case 0:
                             *this = 0;
                             break;
                         case -1: {
-                            auto copy = this->info->realP;
-                            this->info->realP = value.info->realP;
-                            Number::subVector(this->info->realP,copy);
+                            auto copy = this->info->bits;
+                            this->info->bits = value.info->bits;
+                            Number::subVector(this->info->bits,copy);
                             this->info->sign *= -1;
                             break;
                         }
                         case 1:
-                            Number::subVector(this->info->realP,value.info->realP);
+                            Number::subVector(this->info->bits,value.info->bits);
                             break;
                     }
                 } else {
-                    Number::addVector(this->info->realP,value.info->realP);
+                    Number::addVector(this->info->bits,value.info->bits);
                 }
             }
             return *this;
@@ -319,15 +317,15 @@ namespace mind {
         Number& Number::mul(const Number &value) noexcept {
             if (!this->isUndefined() && !value.isUndefined()) {
                 if (this == &value) {
-                    vr vectorCopy = value.info->realP;
-                    Number::mulVector(this->info->realP, vectorCopy);
+                    vr vectorCopy = value.info->bits;
+                    Number::mulVector(this->info->bits, vectorCopy);
                 } else {
-                    if (this->info->realP.size() >= value.info->realP.size()) {
-                        Number::mulVector(this->info->realP, value.info->realP);
+                    if (this->info->bits.size() >= value.info->bits.size()) {
+                        Number::mulVector(this->info->bits, value.info->bits);
                     } else {
-                        vr vectorCopy = this->info->realP;
-                        this->info->realP = value.info->realP;
-                        Number::mulVector(this->info->realP,vectorCopy);
+                        vr vectorCopy = this->info->bits;
+                        this->info->bits = value.info->bits;
+                        Number::mulVector(this->info->bits,vectorCopy);
                     }
                 }
                 this->info->sign *= value.info->sign;
@@ -341,10 +339,10 @@ namespace mind {
             if (!this->isUndefined() && !value.isUndefined()) {
                 if (!value.isZero()) {
                     if (!this->isZero()) {
-                        if (Number::cmpVector(this->info->realP,value.info->realP) == -1) {
+                        if (Number::cmpVector(this->info->bits,value.info->bits) == -1) {
                             *this = 0;
                         } else {
-                            Number::divVector(this->info->realP, value.info->realP);
+                            Number::divVector(this->info->bits, value.info->bits);
                             this->info->sign *= value.info->sign;
                         }
                     }
@@ -358,9 +356,9 @@ namespace mind {
         Number& Number::mod(const Number &value) noexcept(!strictMode) {
             if (!this->isUndefined() && !value.isUndefined()) {
                 if (!value.isZero()) {
-                    if (this->info->realP.size() >= value.info->realP.size()) {
-                        Number::modVector(this->info->realP, value.info->realP);
-                        if (this->info->realP.size() == 1 && *this->info->realP.cbegin() == 0) {
+                    if (this->info->bits.size() >= value.info->bits.size()) {
+                        Number::modVector(this->info->bits, value.info->bits);
+                        if (this->info->bits.size() == 1 && *this->info->bits.cbegin() == 0) {
                             this->info->sign = 0;
                         }
                     }
@@ -373,13 +371,13 @@ namespace mind {
 
         bool Number::isEqual(const Number &obj) const noexcept {
             if (!this->isUndefined() && !obj.isUndefined()) {
-                return this->info->sign == obj.info->sign && this->info->realP == obj.info->realP;
+                return this->info->sign == obj.info->sign && this->info->bits == obj.info->bits;
             }
             return false;
         }
 
         bool Number::isLong() const noexcept {
-            return !this->isUndefined() && this->info->realP.size() > 1;
+            return !this->isUndefined() && this->info->bits.size() > 1;
         }
         bool Number::isUndefined() const noexcept {
             return this->info == nullptr;
@@ -402,7 +400,7 @@ namespace mind {
         void Number::clearInfo() noexcept {
             if (this->info != nullptr) {
                 this->info->sign = 0;
-                this->info->realP.clear();
+                this->info->bits.clear();
             }
         }
 
@@ -454,7 +452,7 @@ namespace mind {
             const primitive::ull64 allocate = (size - 1) / Number::EXPONENT + 1;
             primitive::ull64 index    			= 0;
 
-            this->info->realP.resize(allocate);
+            this->info->bits.resize(allocate);
 
             primitive::ull64 val = 0;
 
@@ -463,11 +461,11 @@ namespace mind {
                 val += value[i] - '0';
             }
 
-            *(this->info->realP.begin() + index++) = val;
+            *(this->info->bits.begin() + index++) = val;
 
             while (last < size) {
 
-                primitive::ull64 remainder = Number::mulPrimitive(this->info->realP,Number::BASE_TEN,index); // 4000
+                primitive::ull64 remainder = Number::mulPrimitive(this->info->bits,Number::BASE_TEN,index); // 4000
 
                 primitive::ull64 val = 0;
 
@@ -476,16 +474,16 @@ namespace mind {
                     val += value[last] - '0';
                 }
 
-                remainder += Number::addPrimitive(this->info->realP,val,index); // 5000
+                remainder += Number::addPrimitive(this->info->bits,val,index); // 5000
 
                 if (remainder != 0) {
-                    *(this->info->realP.begin() + index++) = remainder;
+                    *(this->info->bits.begin() + index++) = remainder;
                 }
 
             }
 
             if (index != allocate) {
-                this->info->realP.erase(this->info->realP.begin() + index, this->info->realP.end());
+                this->info->bits.erase(this->info->bits.begin() + index, this->info->bits.end());
             }
         }
 

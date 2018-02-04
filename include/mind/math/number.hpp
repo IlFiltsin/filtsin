@@ -151,7 +151,7 @@ namespace mind {
 
             struct Info {
                 int sign;
-                vr realP;
+                vr bits;
             };
 
             Info *info {nullptr};
@@ -212,7 +212,7 @@ namespace mind {
         enable_if_integral <T, Number&> Number::operator=(const T &value) noexcept {
             this->allocInfo();
             this->clearInfo();
-            this->info->realP.emplace_back(math::abs(value));
+            this->info->bits.emplace_back(math::abs(value));
             this->info->sign = math::sgn(value);
             return *this;
         }
@@ -314,24 +314,24 @@ namespace mind {
                 if (this->isZero()) {
                     *this = value;
                 } else if ((this->isPositive() && math::sgn(value) == 1) || (this->isNegative() && math::sgn(value) == -1)) {
-                    primitive::ull64 remainder = Number::addPrimitive(this->info->realP,math::abs(value));
+                    primitive::ull64 remainder = Number::addPrimitive(this->info->bits,math::abs(value));
                     if (remainder) {
-                        this->info->realP.push_back(remainder);
+                        this->info->bits.push_back(remainder);
                     }
                 } else {
-                    switch (Number::cmpPrimitive(this->info->realP,math::abs(value))) {
+                    switch (Number::cmpPrimitive(this->info->bits,math::abs(value))) {
                         case 0:
                             *this = 0;
                             break;
                         case -1: {
-                            auto copy = *this->info->realP.cbegin();
-                            *this->info->realP.begin() = math::abs(value);
-                            Number::subPrimitive(this->info->realP, copy);
+                            auto copy = *this->info->bits.cbegin();
+                            *this->info->bits.begin() = math::abs(value);
+                            Number::subPrimitive(this->info->bits, copy);
                             this->info->sign *= -1;
                             break;
                         }
                         case 1:
-                            Number::subPrimitive(this->info->realP,math::abs(value));
+                            Number::subPrimitive(this->info->bits,math::abs(value));
                             break;
                     }
                 }
@@ -346,25 +346,25 @@ namespace mind {
                     *this = value;
                     this->info->sign *= -1;
                 } else if ((this->isPositive() && value > 0) || (this->isNegative() && value < 0)) {
-                    switch (Number::cmpPrimitive(this->info->realP,math::abs(value))) {
+                    switch (Number::cmpPrimitive(this->info->bits,math::abs(value))) {
                         case 0:
                             *this = 0;
                             break;
                         case -1: {
-                            auto copy = *this->info->realP.cbegin();
-                            *this->info->realP.begin() = math::abs(value);
-                            Number::subPrimitive(this->info->realP, copy);
+                            auto copy = *this->info->bits.cbegin();
+                            *this->info->bits.begin() = math::abs(value);
+                            Number::subPrimitive(this->info->bits, copy);
                             this->info->sign *= -1;
                             break;
                         }
                         case 1:
-                            Number::subPrimitive(this->info->realP,math::abs(value));
+                            Number::subPrimitive(this->info->bits,math::abs(value));
                             break;
                     }
                 } else {
-                    auto remainder = Number::addPrimitive(this->info->realP,math::abs(value));
+                    auto remainder = Number::addPrimitive(this->info->bits,math::abs(value));
                     if (remainder) {
-                        this->info->realP.push_back(remainder);
+                        this->info->bits.push_back(remainder);
                     }
                 }
             }
@@ -374,9 +374,9 @@ namespace mind {
         template <typename T>
         enable_if_integral <T,Number&> Number::mul(const T &value) noexcept {
             if (!this->isUndefined()) {
-                auto remainder = Number::mulPrimitive(this->info->realP,math::abs(value));
+                auto remainder = Number::mulPrimitive(this->info->bits,math::abs(value));
                 if (remainder > 0) {
-                    this->info->realP.push_back(remainder);
+                    this->info->bits.push_back(remainder);
                 }
                 this->info->sign *= math::sgn(value);
             }
@@ -390,7 +390,7 @@ namespace mind {
                     if (*this < value) {
                         *this = 0;
                     } else {
-                        Number::divPrimitive(this->info->realP, math::abs(value));
+                        Number::divPrimitive(this->info->bits, math::abs(value));
                         this->info->sign *= math::sgn(value);
                     }
                 } else {
@@ -404,7 +404,7 @@ namespace mind {
         enable_if_integral <T,Number&> Number::mod(const T &value) noexcept(!strictMode) {
             if (!this->isUndefined()) {
                 if (value != 0) {
-                    this->info->realP = vr{Number::divPrimitive(this->info->realP,math::abs(value))};
+                    this->info->bits = vr{Number::divPrimitive(this->info->bits,math::abs(value))};
                 } else {
                     runIfStrictMode([]() {throw NumberException("Invalid divider. Can't divide by zero."); });
                 }
