@@ -13,7 +13,7 @@ cmake_minimum_required(VERSION 3.0.2)
 
 set (VERSION_MAJOR 1)
 set (VERSION_MINOR 1)
-set (VERSION_PATCH 2)
+set (VERSION_PATCH 3)
 set (VERSION_FULL "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
 project (mind VERSION ${VERSION_FULL})
@@ -52,7 +52,7 @@ endif()
 set (HEADER_DIR ${CMAKE_SOURCE_DIR}/include)
 set (SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
-set (SOURCES 
+set (SOURCES
 
 	${SOURCE_DIR}/math/digit.cpp
 	${SOURCE_DIR}/math/math.cpp
@@ -92,7 +92,7 @@ if (BUILD_TEST)
 
 	set (TEST_DIR ${CMAKE_SOURCE_DIR}/test)
 
-	set (TEST_SOURCES 
+	set (TEST_SOURCES
 
 		# Number test
 		${TEST_DIR}/testNumberSum.cpp
@@ -109,7 +109,7 @@ if (BUILD_TEST)
 
 		)
 
-	if (BUILD_SHARED_LIB) 
+	if (BUILD_SHARED_LIB)
 		set (MINDLIB ${PROJECT_NAME})
 	else()
 		set (MINDLIB ${PROJECT_NAME}_S)

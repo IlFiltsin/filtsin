@@ -1,11 +1,15 @@
 4.02.2018
+	v 1.1.3
+	- Fixed memory leak
+
+4.02.2018
 	v 1.1.2
 	- add int() and char() operators for digit class
 	- include windows support on CMake
-	
+
 28.01.2018
 	v 1.1.1
-	- Add flags for compile static and/or shared library from cmake 
+	- Add flags for compile static and/or shared library from cmake
 	- Add flag for strict mode library
 	- Rework of exceptions classes
 	- Add digit class
