@@ -256,7 +256,7 @@ namespace mind {
                 if (this->isZero()) {
                     *this = value;
                 } else if (this->info->sign == value.info->sign) {
-                    //Number::addVector(this->info->bits, value.info->bits);
+                    Number::addVector(this->info->bits, value.info->bits);
                 } else {
                     switch (Number::cmpVector(this->info->bits,value.info->bits)) {
                         case 0:
