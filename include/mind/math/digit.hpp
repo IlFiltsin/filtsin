@@ -15,7 +15,6 @@
 #include <mind/other/common.hpp>
 #include <mind/exceptions/exception.hpp>
 
-#include <istream>
 
 namespace mind {
     namespace math {
@@ -43,7 +42,7 @@ namespace mind {
         operator char() const;
         operator int() const;
 
-        private: 
+        private:
         unsigned int value;
         };
 
@@ -53,18 +52,18 @@ namespace mind {
 
         template <typename T>
         Digit::Digit(const T &value, typename std::enable_if<std::is_integral<T>::value>::type *) {
-        *this = value;
+          *this = value;
         }
 
         template <typename T>
         enable_if_integral <T, Digit&> Digit::operator=(const T &value) noexcept(!strictMode) {
-        if (value < 0 || value > 9) {
-        runIfStrictMode([]() {throw DigitException("Invalid digit. Use only one digit to set value.");});
-        this->value = 0;
-        } else {
-        this->value = value;
-        }
-        return *this;
+          if (value < 0 || value > 9) {
+          runIfStrictMode([]() {throw DigitException("Invalid digit. Use only one digit to set value.");});
+          this->value = 0;
+          } else {
+          this->value = value;
+          }
+          return *this;
         }
     }
 }

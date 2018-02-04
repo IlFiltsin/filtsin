@@ -21,9 +21,7 @@
 #include <string>
 #include <vector>
 
-#include <algorithm>
-#include <limits>
-#include <bitset>
+#include <memory>
 #include <tuple>
 
 
@@ -39,7 +37,7 @@ namespace mind {
             Number(const char *);
             Number(const std::vector<Digit> &);
             Number(const Number &);
-            Number(Number &&) noexcept;
+            Number(Number &&);
             ~Number();
 
             template <typename T>
@@ -154,7 +152,7 @@ namespace mind {
                 vr bits;
             };
 
-            Info *info {nullptr};
+            std::unique_ptr<Info> info;
 
             void allocInfo() noexcept;
             void clearInfo() noexcept;

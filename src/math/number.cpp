@@ -10,6 +10,10 @@
  ====----------------------------------------------------------------------====*/
 #include <mind/math/number.hpp>
 
+#include <algorithm>
+#include <limits>
+#include <bitset>
+
 namespace mind {
     namespace math {
 
@@ -25,13 +29,8 @@ namespace mind {
         Number::Number(const Number &rhs) {
             *this = rhs;
         }
-        Number::Number(Number &&rhs) noexcept {
-            *this = std::move(rhs);
-        }
-        Number::~Number() {
-            delete this->info;
-        }
-
+        Number::Number(Number &&rhs) = default;
+        Number::~Number() = default;
         Number& Number::operator=(const std::string &value) noexcept(!strictMode) {
             this->setValue(value);
             return *this;
@@ -59,21 +58,14 @@ namespace mind {
         Number& Number::operator=(const Number &rhs) noexcept {
             if (this != &rhs) {
                 if (rhs.info != nullptr) {
-                    this->info = new Info(*rhs.info);
+                  this->info = std::unique_ptr<Info>(new Info(*rhs.info));
+                } else {
+                  this->info.reset();
                 }
             }
             return *this;
         }
-        Number& Number::operator=(Number &&rhs) noexcept {
-            if (this != &rhs) {
-                if (rhs.info != nullptr) {
-                    this->info = rhs.info;
-                    rhs.info = nullptr;
-                }
-            }
-            return *this;
-        }
-
+        Number& Number::operator=(Number &&rhs) noexcept = default;
         std::ostream& operator<<(std::ostream &os, const Number &obj) noexcept {
             os << obj.getString();
             return os;
@@ -264,7 +256,7 @@ namespace mind {
                 if (this->isZero()) {
                     *this = value;
                 } else if (this->info->sign == value.info->sign) {
-                    Number::addVector(this->info->bits, value.info->bits);
+                    //Number::addVector(this->info->bits, value.info->bits);
                 } else {
                     switch (Number::cmpVector(this->info->bits,value.info->bits)) {
                         case 0:
@@ -394,7 +386,7 @@ namespace mind {
 
         void Number::allocInfo() noexcept {
             if (this->info == nullptr) {
-                this->info = new Info();
+                this->info = std::unique_ptr<Info>(new Info);
             }
         }
         void Number::clearInfo() noexcept {
@@ -465,7 +457,7 @@ namespace mind {
 
             while (last < size) {
 
-                primitive::ull64 remainder = Number::mulPrimitive(this->info->bits,Number::BASE_TEN,index); // 4000
+                primitive::ull64 remainder = Number::mulPrimitive(this->info->bits,Number::BASE_TEN,index);
 
                 primitive::ull64 val = 0;
 
@@ -474,7 +466,7 @@ namespace mind {
                     val += value[last] - '0';
                 }
 
-                remainder += Number::addPrimitive(this->info->bits,val,index); // 5000
+                remainder += Number::addPrimitive(this->info->bits,val,index);
 
                 if (remainder != 0) {
                     *(this->info->bits.begin() + index++) = remainder;

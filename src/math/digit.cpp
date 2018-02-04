@@ -1,5 +1,7 @@
 #include <mind/math/digit.hpp>
 
+#include <istream>
+
 namespace mind {
     namespace math {
 
