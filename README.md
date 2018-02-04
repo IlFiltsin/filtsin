@@ -18,7 +18,7 @@ Mind is **math library with support long arithmetic**
 ### Clone the repository
 The first step is to clone the repository or download last release. Write in terminal:
 ```bash
-git clone https://github.com/IlFiltsin/mind.git
+git clone https://github.com/ilfiltsin/mind.git
 ```
 ### Installation
 Write in terminal in building directory:
