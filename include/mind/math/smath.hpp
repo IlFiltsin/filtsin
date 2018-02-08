@@ -16,54 +16,53 @@
 #include <mind/exceptions/exception.hpp>
 
 namespace mind {
-    namespace math {
-        template <typename T>
-        enable_if_integral <T,int> sgn(const T &) noexcept;
-        template <typename T>
-        enable_if_integral <T,T> abs(const T &) noexcept;
-        template <typename T>
-        enable_if_integral <T,primitive::tick> cnt(T) noexcept;
+ namespace math {
+  template<typename T>
+  enable_if_integral<T, int> sgn(const T &) noexcept;
+  template<typename T>
+  enable_if_integral<T, T> abs(const T &) noexcept;
+  template<typename T>
+  enable_if_integral<T, primitive::tick> cnt(T) noexcept;
 
-        // ##############################################################################################
-        // Templates methods
-        // ##############################################################################################
+  // ##############################################################################################
+  // Templates methods
+  // ##############################################################################################
 
 
-        template <typename T>
-        enable_if_integral <T,int>
-        sgn(const T &value) noexcept {
-            if (value < 0) {
-                return -1;
-            } else if (value == 0) {
-                return 0;
-            } else {
-                return 1;
-            }
-        }
+  template<typename T>
+  enable_if_integral<T, int>
+  sgn(const T &value) noexcept {
+   if (value < 0) {
+    return -1;
+   } else if (value == 0) {
+    return 0;
+   } else {
+    return 1;
+   }
+  }
 
-        template <typename T>
-        enable_if_integral <T,T>
-        abs(const T &value) noexcept {
-            if (value < 0) {
-                return -value;
-            } else {
-                return value;
-            }
-        }
+  template<typename T>
+  enable_if_integral<T, T>
+  abs(const T &value) noexcept {
+   if (value < 0) {
+    return -value;
+   } else {
+    return value;
+   }
+  }
 
-        template <typename T>
-        enable_if_integral <T,primitive::tick>
-        cnt(T value) noexcept {
-            primitive::tick result = 0;
+  template<typename T>
+  enable_if_integral<T, primitive::tick>
+  cnt(T value) noexcept {
+   primitive::tick result = 0;
+   do {
+    result++;
+    value /= 10;
+   } while (value);
 
-            do {
-                result++;
-                value /= 10;
-            } while (value);
-
-            return result;
-        }
-    }
+   return result;
+  }
+ }
 }
 
 #endif
