@@ -18,7 +18,12 @@ set (VERSION_FULL "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
 project (mind VERSION ${VERSION_FULL})
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_RELEASE} -O2 -std=c++11")
+if (NOT CMAKE_BUILD_TYPE)
+	set (CMAKE_BUILD_TYPE Release)
+endif ()
+
+add_definitions(-std=c++11)
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
 option (BUILD_STATIC_LIB "Build the static library." ON)
 option (BUILD_SHARED_LIB "Build the shared library." ON)
