@@ -23,7 +23,7 @@ namespace mind {
   Number::Number(const char *value) {
    this->setValue(value);
   }
-  Number::Number(const std::vector<Digit> &value) {
+  Number::Number(std::initializer_list<Digit> value) {
    *this = value;
   }
   Number::Number(const Number &rhs) {
@@ -51,7 +51,7 @@ namespace mind {
    }
    return *this;
   }
-  Number &Number::operator=(const std::vector<Digit> &value) noexcept {
+  Number &Number::operator=(std::initializer_list<Digit> value) noexcept {
    std::string strValue(value.begin(), value.end());
    this->setValue(strValue);
    return *this;
@@ -83,30 +83,34 @@ namespace mind {
    return lhs.isEqual(rhs);
   }
   bool operator>(const Number &lhs, const Number &rhs) noexcept {
-   if (!lhs.isUndefined() && !rhs.isUndefined()) {
-    if (lhs.info->sign == rhs.info->sign) {
-     if (lhs.isPositive()) {
-      return Number::cmpVector(lhs.info->bits, rhs.info->bits) == 1;
-     } else {
-      return Number::cmpVector(lhs.info->bits, rhs.info->bits) == -1;
-     }
+   if (lhs.isUndefined() || rhs.isUndefined()) {
+    return false;
+   }
+
+   if (lhs.info->sign == rhs.info->sign) {
+    if (lhs.isPositive()) {
+     return Number::cmpVector(lhs.info->bits, rhs.info->bits) == 1;
     } else {
-     return lhs.info->sign > rhs.info->sign;
+     return Number::cmpVector(lhs.info->bits, rhs.info->bits) == -1;
     }
+   } else {
+    return lhs.info->sign > rhs.info->sign;
    }
    return false;
   }
   bool operator<(const Number &lhs, const Number &rhs) noexcept {
-   if (!lhs.isUndefined() && !rhs.isUndefined()) {
-    if (lhs.info->sign == rhs.info->sign) {
-     if (lhs.isPositive()) {
-      return Number::cmpVector(lhs.info->bits, rhs.info->bits) == -1;
-     } else {
-      return Number::cmpVector(lhs.info->bits, rhs.info->bits) == 1;
-     }
+   if (lhs.isUndefined() || rhs.isUndefined()) {
+    return false;
+   }
+
+   if (lhs.info->sign == rhs.info->sign) {
+    if (lhs.isPositive()) {
+     return Number::cmpVector(lhs.info->bits, rhs.info->bits) == -1;
     } else {
-     return lhs.info->sign < rhs.info->sign;
+     return Number::cmpVector(lhs.info->bits, rhs.info->bits) == 1;
     }
+   } else {
+    return lhs.info->sign < rhs.info->sign;
    }
    return false;
   }
@@ -204,38 +208,41 @@ namespace mind {
   std::string Number::getString() const noexcept {
    std::string result;
 
-   if (!this->isUndefined()) {
-    if (this->isLong()) {
+   if (this->isUndefined()) {
+    return result;
+   }
 
-     vr bitsCopy = this->info->bits;
-     primitive::tick count = bitsCopy.size();
+   if (this->isLong()) {
 
-     do {
-      const primitive::ull64 partOfResult = Number::divPrimitive(bitsCopy, Number::BASE_TEN);
-      result.insert(0, std::to_string(partOfResult));
+    vr bitsCopy = this->info->bits;
+    primitive::tick count = bitsCopy.size();
 
-      primitive::tick curSize = math::cnt(partOfResult);
-      if (curSize < Number::EXPONENT) {
-       for (; curSize < Number::EXPONENT; ++curSize) {
-        result.insert(0, "0");
-       }
+    do {
+     const primitive::ull64 partOfResult = Number::divPrimitive(bitsCopy, Number::BASE_TEN);
+     result.insert(0, std::to_string(partOfResult));
+
+     primitive::tick curSize = math::cnt(partOfResult);
+     if (curSize < Number::EXPONENT) {
+      for (; curSize < Number::EXPONENT; ++curSize) {
+       result.insert(0, "0");
       }
-
-      if (*(bitsCopy.cbegin() + count - 1) == 0) {
-       count--;
-      }
-     } while (count > 1);
-
-     if (*bitsCopy.cbegin() != 0) {
-      result.insert(0, std::to_string(*bitsCopy.cbegin()));
      }
 
-    } else {
-     result = std::to_string(*this->info->bits.cbegin());
+     if (*(bitsCopy.cbegin() + count - 1) == 0) {
+      count--;
+     }
+    } while (count > 1);
+
+    if (*bitsCopy.cbegin() != 0) {
+     result.insert(0, std::to_string(*bitsCopy.cbegin()));
     }
-    if (this->info->sign == -1) {
-     result.insert(0, "-");
-    }
+
+   } else {
+    result = std::to_string(*this->info->bits.cbegin());
+   }
+
+   if (this->info->sign == -1) {
+    result.insert(0, "-");
    }
 
    return result;
@@ -248,111 +255,131 @@ namespace mind {
   }
 
   Number &Number::add(const Number &value) noexcept {
-   if (!this->isUndefined() && !value.isUndefined()) {
-    if (this->isZero()) {
-     *this = value;
-    } else if (this->info->sign == value.info->sign) {
-     Number::addVector(this->info->bits, value.info->bits);
-    } else switch (Number::cmpVector(this->info->bits, value.info->bits)) {
-      case 0:
-       *this = 0;
-       break;
-      case -1: {
-       auto copy = this->info->bits;
-       this->info->bits = value.info->bits;
-       Number::subVector(this->info->bits, copy);
-       this->info->sign *= -1;
-       break;
-      }
-      case 1:
-       Number::subVector(this->info->bits, value.info->bits);
-       break;
-     }
+
+   if (this->isUndefined() || value.isUndefined()) {
+    this->clearInfo();
+    return *this;
    }
+
+   if (this->isZero()) {
+    *this = value;
+   } else if (this->info->sign == value.info->sign) {
+    Number::addVector(this->info->bits, value.info->bits);
+   } else switch (Number::cmpVector(this->info->bits, value.info->bits)) {
+     case 0:
+      *this = 0;
+      break;
+     case -1: {
+      auto copy = this->info->bits;
+      this->info->bits = value.info->bits;
+      Number::subVector(this->info->bits, copy);
+      this->info->sign *= -1;
+      break;
+     }
+     case 1:
+      Number::subVector(this->info->bits, value.info->bits);
+      break;
+    }
    return *this;
   }
 
   Number &Number::sub(const Number &value) noexcept {
-   if (!this->isUndefined() && !value.isUndefined()) {
-    if (this->isZero()) {
-     *this = value;
-     this->info->sign *= -1;
-    } else if (this->info->sign != value.info->sign) {
-     Number::addVector(this->info->bits, value.info->bits);
-    } else switch (Number::cmpVector(this->info->bits, value.info->bits)) {
-      case 0:
-       *this = 0;
-       break;
-      case -1: {
-       auto copy = this->info->bits;
-       this->info->bits = value.info->bits;
-       Number::subVector(this->info->bits, copy);
-       this->info->sign *= -1;
-       break;
-      }
-      case 1:
-       Number::subVector(this->info->bits, value.info->bits);
-       break;
-     }
+   if (this->isUndefined() || value.isUndefined()) {
+    this->clearInfo();
+    return *this;
    }
+
+   if (this->isZero()) {
+    *this = value;
+    this->info->sign *= -1;
+   } else if (this->info->sign != value.info->sign) {
+    Number::addVector(this->info->bits, value.info->bits);
+   } else switch (Number::cmpVector(this->info->bits, value.info->bits)) {
+     case 0:
+      *this = 0;
+      break;
+     case -1: {
+      auto copy = this->info->bits;
+      this->info->bits = value.info->bits;
+      Number::subVector(this->info->bits, copy);
+      this->info->sign *= -1;
+      break;
+     }
+     case 1:
+      Number::subVector(this->info->bits, value.info->bits);
+      break;
+    }
    return *this;
   }
 
   Number &Number::mul(const Number &value) noexcept {
-   if (!this->isUndefined() && !value.isUndefined()) {
-    if (this == &value) {
-     vr vectorCopy = value.info->bits;
-     Number::mulVector(this->info->bits, vectorCopy);
-    } else {
-     if (this->info->bits.size() >= value.info->bits.size()) {
-      Number::mulVector(this->info->bits, value.info->bits);
-     } else {
-      vr vectorCopy = this->info->bits;
-      this->info->bits = value.info->bits;
-      Number::mulVector(this->info->bits, vectorCopy);
-     }
-    }
-    this->info->sign *= value.info->sign;
-   } else {
+   if (this->isUndefined() || value.isUndefined()) {
     this->clearInfo();
+    return *this;
    }
+
+   if (this == &value) {
+    vr vectorCopy = value.info->bits;
+    Number::mulVector(this->info->bits, vectorCopy);
+   } else {
+    if (this->info->bits.size() >= value.info->bits.size()) {
+     Number::mulVector(this->info->bits, value.info->bits);
+    } else {
+     vr vectorCopy = this->info->bits;
+     this->info->bits = value.info->bits;
+     Number::mulVector(this->info->bits, vectorCopy);
+    }
+   }
+   this->info->sign *= value.info->sign;
+
    return *this;
   }
 
   Number &Number::div(const Number &value) noexcept(!strictMode) {
-   if (!this->isUndefined() && !value.isUndefined()) {
 
-    if (value.isZero()) {
-     runIfStrictMode([]() { throw NumberException("Invalid divider. Can't divide by zero."); });
-     return *this;
-    }
+   if (this->isUndefined() || value.isUndefined()) {
+    this->clearInfo();
+    return *this;
+   }
 
-    if (!this->isZero()) {
-     if (Number::cmpVector(this->info->bits, value.info->bits) == -1) {
-      *this = 0;
-     } else {
-      Number::divVector(this->info->bits, value.info->bits);
-      this->info->sign *= value.info->sign;
-     }
-    }
+   if (value.isZero()) {
+    runIfStrictMode([]() { throw NumberException("Invalid divider. Can't divide by zero."); });
+    return *this;
+   }
+
+   if (this->isZero()) {
+    return *this;
+   }
+
+   if (Number::cmpVector(this->info->bits, value.info->bits) == -1) {
+    *this = 0;
+   } else {
+    Number::divVector(this->info->bits, value.info->bits);
+    this->info->sign *= value.info->sign;
    }
 
    return *this;
   }
 
   Number &Number::mod(const Number &value) noexcept(!strictMode) {
-   if (!this->isUndefined() && !value.isUndefined()) {
+   if (this->isUndefined() || value.isUndefined()) {
+    this->clearInfo();
+    return *this;
+   }
 
-    if (value.isZero()) {
-     runIfStrictMode([]() { throw NumberException("Invalid divider. Can't divide by zero."); });
-     return *this;
-    }
+   if (value.isZero()) {
+    runIfStrictMode([]() { throw NumberException("Invalid divider. Can't divide by zero."); });
+    return *this;
+   }
 
-    if (this->info->bits.size() >= value.info->bits.size()) {
-     Number::modVector(this->info->bits, value.info->bits);
-     if (this->info->bits.size() == 1 && *this->info->bits.cbegin() == 0) {
-      this->info->sign = 0;
-     }
+   if (this->isZero()) {
+    return *this;
+   }
+
+   if (this->info->bits.size() >= value.info->bits.size()) {
+    Number::modVector(this->info->bits, value.info->bits);
+    if (this->info->bits.size() == 1 && *this->info->bits.cbegin() == 0) {
+     this->info->sign = 0;
     }
    }
 

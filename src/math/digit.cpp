@@ -48,6 +48,7 @@ namespace mind {
   Digit::operator char() const {
    return this->value + '0';
   }
+
   Digit::operator int() const {
    return this->value;
   }

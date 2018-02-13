@@ -36,7 +36,7 @@ namespace mind {
    Number(const T &, typename std::enable_if<std::is_integral<T>::value>::type * = nullptr);
    Number(const std::string &);
    Number(const char *);
-   Number(const std::vector<Digit> &);
+   Number(std::initializer_list<Digit>);
    Number(const Number &);
    Number(Number &&);
    ~Number();
@@ -46,7 +46,7 @@ namespace mind {
    Number &operator=(const std::string &) noexcept(!strictMode);
    Number &operator=(const char *) noexcept(!strictMode);
    Number &operator=(char) noexcept(!strictMode);
-   Number &operator=(const std::vector<Digit> &) noexcept;
+   Number &operator=(std::initializer_list<Digit>) noexcept;
    Number &operator=(const Number &) noexcept;
    Number &operator=(Number &&) noexcept;
 
@@ -75,16 +75,6 @@ namespace mind {
    enable_if_integral<T, Number> friend operator/(const Number &, const T &) noexcept(!strictMode);
    template<typename T>
    enable_if_integral<T, Number> friend operator%(const Number &, const T &) noexcept(!strictMode);
-  /* template<typename T>
-   enable_if_integral<T, Number> friend operator+(const T &, const Number &) noexcept;
-   template<typename T>
-   enable_if_integral<T, Number> friend operator-(const T &, const Number &) noexcept;
-   template<typename T>
-   enable_if_integral<T, Number> friend operator*(const T &, const Number &) noexcept;
-   template<typename T>
-   enable_if_integral<T, Number> friend operator/(const T &, const Number &) noexcept(!strictMode);
-   template<typename T>
-   enable_if_integral<T, Number> friend operator%(const T &, const Number &) noexcept(!strictMode); */
 
    friend Number &operator+=(Number &, const Number &) noexcept;
    friend Number &operator-=(Number &, const Number &) noexcept;
@@ -256,39 +246,6 @@ namespace mind {
    }
    return Number{};
   }
- /* template<typename T>
-  enable_if_integral<T, Number> operator+(const T &value, const Number &rhs) noexcept {
-   return rhs + value;
-  }
-  template<typename T>
-  enable_if_integral<T, Number> operator-(const T &value, const Number &rhs) noexcept {
-   if (!rhs.isUndefined()) {
-    Number result = value;
-    return result.sub(rhs);
-   }
-   return Number{};
-  }
-  template<typename T>
-  enable_if_integral<T, Number> operator*(const T &value, const Number &rhs) noexcept {
-   return rhs * value;
-  }
-  template<typename T>
-  enable_if_integral<T, Number> operator/(const T &value, const Number &rhs) noexcept(!strictMode) {
-   if (!rhs.isUndefined()) {
-    Number result = value;
-    return result.div(rhs);
-   }
-   return Number{};
-  }
-  template<typename T>
-  enable_if_integral<T, Number> operator%(const T &value, const Number &rhs) noexcept(!strictMode) {
-   if (!rhs.isUndefined()) {
-    Number result = value;
-    return result.mod(rhs);
-   }
-   return Number{};
-  } */
-
   template<typename T>
   enable_if_integral<T, Number &> operator+=(Number &lhs, const T &value) noexcept {
    return lhs.add(value);
@@ -308,61 +265,66 @@ namespace mind {
 
   template<typename T>
   enable_if_integral<T, Number &> Number::add(const T &value) noexcept {
-   if (!this->isUndefined()) {
-    if (this->isZero()) {
-     *this = value;
-    } else if ((this->isPositive() && math::sgn(value) == 1) || (this->isNegative() && math::sgn(value) == -1)) {
-     primitive::ull64 remainder = Number::addPrimitive(this->info->bits, math::abs(value));
-     if (remainder) {
-      this->info->bits.push_back(remainder);
-     }
-    } else {
-     switch (Number::cmpPrimitive(this->info->bits, math::abs(value))) {
-      case 0:
-       *this = 0;
-       break;
-      case -1: {
-       auto copy = *this->info->bits.cbegin();
-       *this->info->bits.begin() = math::abs(value);
-       Number::subPrimitive(this->info->bits, copy);
-       this->info->sign *= -1;
-       break;
-      }
-      case 1:
-       Number::subPrimitive(this->info->bits, math::abs(value));
-       break;
-     }
-    }
+   if (this->isUndefined()) {
+    this->clearInfo();
+    return *this;
    }
+
+   if (this->isZero()) {
+    *this = value;
+   } else if ((this->isPositive() && math::sgn(value) == 1) || (this->isNegative() && math::sgn(value) == -1)) {
+    primitive::ull64 remainder = Number::addPrimitive(this->info->bits, math::abs(value));
+    if (remainder) {
+     this->info->bits.push_back(remainder);
+    }
+   } else switch (Number::cmpPrimitive(this->info->bits, math::abs(value))) {
+     case 0:
+      *this = 0;
+      break;
+     case -1: {
+      auto copy = *this->info->bits.cbegin();
+      *this->info->bits.begin() = math::abs(value);
+      Number::subPrimitive(this->info->bits, copy);
+      this->info->sign *= -1;
+      break;
+     }
+     case 1:
+      Number::subPrimitive(this->info->bits, math::abs(value));
+      break;
+    }
+
    return *this;
   }
   template<typename T>
   enable_if_integral<T, Number &> Number::sub(const T &value) noexcept {
-   if (!this->isUndefined()) {
-    if (this->isZero()) {
-     *this = value;
-     this->info->sign *= -1;
-    } else if ((this->isPositive() && value > 0) || (this->isNegative() && value < 0)) {
-     switch (Number::cmpPrimitive(this->info->bits, math::abs(value))) {
-      case 0:
-       *this = 0;
-       break;
-      case -1: {
-       auto copy = *this->info->bits.cbegin();
-       *this->info->bits.begin() = math::abs(value);
-       Number::subPrimitive(this->info->bits, copy);
-       this->info->sign *= -1;
-       break;
-      }
-      case 1:
-       Number::subPrimitive(this->info->bits, math::abs(value));
-       break;
+   if (this->isUndefined()) {
+    this->clearInfo();
+    return *this;
+   }
+
+   if (this->isZero()) {
+    *this = value;
+    this->info->sign *= -1;
+   } else if ((this->isPositive() && value > 0) || (this->isNegative() && value < 0)) {
+    switch (Number::cmpPrimitive(this->info->bits, math::abs(value))) {
+     case 0:
+      *this = 0;
+      break;
+     case -1: {
+      auto copy = *this->info->bits.cbegin();
+      *this->info->bits.begin() = math::abs(value);
+      Number::subPrimitive(this->info->bits, copy);
+      this->info->sign *= -1;
+      break;
      }
-    } else {
-     auto remainder = Number::addPrimitive(this->info->bits, math::abs(value));
-     if (remainder) {
-      this->info->bits.push_back(remainder);
-     }
+     case 1:
+      Number::subPrimitive(this->info->bits, math::abs(value));
+      break;
+    }
+   } else {
+    auto remainder = Number::addPrimitive(this->info->bits, math::abs(value));
+    if (remainder) {
+     this->info->bits.push_back(remainder);
     }
    }
    return *this;
@@ -370,44 +332,56 @@ namespace mind {
 
   template<typename T>
   enable_if_integral<T, Number &> Number::mul(const T &value) noexcept {
-   if (!this->isUndefined()) {
-    auto remainder = Number::mulPrimitive(this->info->bits, math::abs(value));
-    if (remainder > 0) {
-     this->info->bits.push_back(remainder);
-    }
-    this->info->sign *= math::sgn(value);
+   if (this->isUndefined()) {
+    this->clearInfo();
+    return *this;
    }
+
+   auto remainder = Number::mulPrimitive(this->info->bits, math::abs(value));
+   if (remainder > 0) {
+    this->info->bits.push_back(remainder);
+   }
+   this->info->sign *= math::sgn(value);
+
    return *this;
   }
 
   template<typename T>
   enable_if_integral<T, Number &> Number::div(const T &value) noexcept(!strictMode) {
-   if (!this->isUndefined()) {
-    if (value == 0) {
-     runIfStrictMode([]() { throw NumberException("Invalid divider. Can't divide by zero."); });
-     return *this;
-    }
-
-    if (*this < value) {
-     *this = 0;
-    } else {
-     Number::divPrimitive(this->info->bits, math::abs(value));
-     this->info->sign *= math::sgn(value);
-    }
+   if (this->isUndefined()) {
+    this->clearInfo();
+    return *this;
    }
+
+   if (value == 0) {
+    runIfStrictMode([]() { throw NumberException("Invalid divider. Can't divide by zero."); });
+    return *this;
+   }
+
+   if (*this < value) {
+    *this = 0;
+   } else {
+    Number::divPrimitive(this->info->bits, math::abs(value));
+    this->info->sign *= math::sgn(value);
+   }
+
    return *this;
   }
 
   template<typename T>
   enable_if_integral<T, Number &> Number::mod(const T &value) noexcept(!strictMode) {
-   if (!this->isUndefined()) {
-    if (value == 0) {
-     runIfStrictMode([]() { throw NumberException("Invalid divider. Can't divide by zero."); });
-     return *this;
-    }
-
-    this->info->bits = vr{Number::divPrimitive(this->info->bits, math::abs(value))};
+   if (this->isUndefined()) {
+    this->clearInfo();
+    return *this;
    }
+
+   if (value == 0) {
+    runIfStrictMode([]() { throw NumberException("Invalid divider. Can't divide by zero."); });
+    return *this;
+   }
+
+   this->info->bits = vr{Number::divPrimitive(this->info->bits, math::abs(value))};
+
    return *this;
   }
 

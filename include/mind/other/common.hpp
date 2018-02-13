@@ -10,8 +10,8 @@
  ====----------------------------------------------------------------------====*/
 
 
-#ifndef WATCHER_MIND
-# define WATCHER_MIND
+#ifndef COMMON_MIND
+#define COMMON_MIND
 
 #include <type_traits>
 #include <cstddef>
