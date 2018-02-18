@@ -13,7 +13,7 @@ cmake_minimum_required(VERSION 3.0.2)
 
 set (VERSION_MAJOR 1)
 set (VERSION_MINOR 1)
-set (VERSION_PATCH 3)
+set (VERSION_PATCH 4)
 set (VERSION_FULL "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
 project (mind VERSION ${VERSION_FULL})
@@ -23,7 +23,7 @@ if (NOT CMAKE_BUILD_TYPE)
 endif ()
 
 add_definitions(-std=c++11)
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 option (BUILD_STATIC_LIB "Build the static library." ON)
 option (BUILD_SHARED_LIB "Build the shared library." ON)
@@ -71,7 +71,7 @@ if (BUILD_STATIC_LIB)
 	add_library (${PROJECT_NAME}_S STATIC ${SOURCES})
 	set_target_properties (${PROJECT_NAME}_S PROPERTIES VERSION ${PROJECT_VERSION} OUTPUT_NAME ${PROJECT_NAME})
 	target_include_directories (${PROJECT_NAME}_S PRIVATE "${SOURCE_DIR}"
-											PUBLIC "${HEADER_DIR}")
+												  PUBLIC "${HEADER_DIR}")
 	install (TARGETS ${PROJECT_NAME}_S LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 endif ()
 
