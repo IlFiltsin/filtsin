@@ -1,22 +1,23 @@
 #ifndef FILTSIN_NUMERIC_W_INT_ARITHMETIC
 #define FILTSIN_NUMERIC_W_INT_ARITHMETIC
 
-// FSN headers
-#include <other/const.hpp>
-
 #include <limits>
+#include <type_traits>
+
+#include <filtsin/macro/def.hpp>
 
 namespace fsn {
+ template<typename BaseType, class = typename std::enable_if<std::is_unsigned<BaseType>::value>::type>
  struct w_int_arithmetic {
-
-  using  unit_type = uint64_t;
+  
+  using  unit_type = BaseType;
   static constexpr unit_type unit_max   = std::numeric_limits<unit_type>::max();
   static constexpr size_t    unit_size  = sizeof(unit_type) * 8;
 
   template <typename T>
   struct multiplication_builtin_parts {
-   T higher;
-   T lower;
+    T higher;
+    T lower;
   };
 
   /*
@@ -53,7 +54,7 @@ namespace fsn {
    *
    */
   template <typename T, class = typename std::enable_if<std::is_unsigned<T>::value>::type>
-  static __constexpr multiplication_builtin_parts<T> multiplication_of_builtin_to_builtin(T value1, T value2) noexcept {
+  static fsn_constexpr multiplication_builtin_parts<T> multiplication_of_builtin_to_builtin(T value1, T value2) noexcept {
    constexpr size_t t_size  = sizeof(T) * 4; // (t_size * 8) / 2
    constexpr T      mask    = ((static_cast<T>(1) << t_size) - 1);
 
@@ -74,7 +75,7 @@ namespace fsn {
   }
 
   template <typename T, class = typename std::enable_if<std::is_unsigned<T>::value>::type>
-  static __constexpr T multiplication_of_wint_to_builtin(T *begin, T *end, T value) {
+  static fsn_constexpr T multiplication_of_wint_to_builtin(T *begin, T *end, T value) {
    T remainder = 0;
    for (; begin < end; ++begin) {
     auto multiplication_of_builtin = multiplication_of_builtin_to_builtin(*begin,value);

@@ -2,17 +2,17 @@
 #define FILTSIN_NUMERIC_W_INT_BITS
 
 // FSN headers
-#include <other/const.hpp>
-#include <numeric/w_int_arithmetic.hpp>
+#include <filtsin/numeric/impl/w_int_arithmetic.hpp>
+#include <filtsin/macro/def.hpp>
 
 namespace fsn {
 
- template <size_t Bits, typename Sign>
+ template <size_t Bits, typename Sign, typename BaseType>
  struct w_int_bits {
 
-  using w_integral = w_int_arithmetic;
+  using w_integral = w_int_arithmetic<BaseType>;
 
-  using data_type = w_integral::unit_type;
+  using data_type = typename w_integral::unit_type;
 
   static constexpr bool is_signed = std::is_signed<Sign>::value;
   static constexpr size_t data_size = Bits / w_integral::unit_size + (Bits % w_integral::unit_size == 0 ? 0 : 1);
@@ -30,7 +30,7 @@ namespace fsn {
    *  data[0] = 345 (000....0101011001)
    *                     51
   */
-  static __constexpr bool is_positive(const data_type (&data)[data_size]) noexcept {
+  static fsn_constexpr bool is_positive(const data_type (&data)[data_size]) noexcept {
    if (is_signed) {
     return (data[data_size - 1] >> (w_integral::unit_size - 1)) == 0;
    } else {
@@ -41,7 +41,7 @@ namespace fsn {
   /*
    * make_positive change first bit of last field in data to 0.
   */
-  static __constexpr void make_positive(data_type (&data)[data_size]) noexcept {
+  static fsn_constexpr void make_positive(data_type (&data)[data_size]) noexcept {
    static_assert(is_signed,"Can not change sign for unsigned type.");
    data[data_size - 1] ^= (static_cast<data_type>(1) << (w_integral::unit_size - 1));
   }
@@ -49,21 +49,21 @@ namespace fsn {
   /*
    * make_negative change first bit of last field in data to 1
   */
-  static __constexpr void make_negative(data_type (&data)[data_size]) noexcept {
+  static fsn_constexpr void make_negative(data_type (&data)[data_size]) noexcept {
    static_assert(is_signed,"Can not change sign for unsigned type.");
    data[data_size - 1] |= (static_cast<data_type>(1) << (w_integral::unit_size - 1));
   }
 
-  static __constexpr void max(data_type (&data)[data_size]) noexcept {
+  static fsn_constexpr void max(data_type (&data)[data_size]) noexcept {
    for (auto &_ : data) {
     _ = w_integral::unit_max;
    }
    if (is_signed) {
-    w_int_bits<Bits,signed>::make_positive(data);
+    w_int_bits<Bits,signed,BaseType>::make_positive(data);
    }
   }
 
-  static __constexpr void min(data_type (&data)[data_size]) noexcept {
+  static fsn_constexpr void min(data_type (&data)[data_size]) noexcept {
    for (auto &_ : data) {
     if (is_signed) {
      _ = w_integral::unit_max;
@@ -73,18 +73,18 @@ namespace fsn {
    }
   }
 
-  static __constexpr void fill_zero(data_type (&data)[data_size], size_t start = 0) noexcept {
+  static fsn_constexpr void fill_zero(data_type (&data)[data_size], size_t start = 0) noexcept {
    for (; start < data_size; ++start) {
     data[start] = 0;
    }
   }
 
   template <typename T, class = typename std::enable_if<std::is_arithmetic<T>::value>::type>
-  static __constexpr void fill_from_builtin(data_type (&data)[data_size], T value) noexcept {
+  static fsn_constexpr void fill_from_builtin(data_type (&data)[data_size], T value) noexcept {
 
    using t_unsigned = typename std::make_unsigned<T>::type;
 
-   t_unsigned unsigned_value = static_cast<t_unsigned>(value);
+   auto unsigned_value = static_cast<t_unsigned>(value);
 
    if (sizeof(T) * 8 > Bits) {
     unsigned_value = value & ((static_cast<T>(1) << Bits) - 1);
@@ -103,7 +103,7 @@ namespace fsn {
    }
 
    if (value < 0 && is_signed) {
-    w_int_bits<Bits,signed>::make_negative(data);
+    w_int_bits<Bits,signed,BaseType>::make_negative(data);
    }
   }
 
