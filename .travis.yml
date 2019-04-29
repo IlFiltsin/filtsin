@@ -141,9 +141,10 @@ install:
   ####################################### 
   - |
     if [[ ! -d ${GTEST_DIR} ]]; then
-      GTEST_VERSION=release-1.7.0
+      GTEST_VERSION=release-1.8.1
       GTEST_URL=https://github.com/google/googletest/archive/${GTEST_VERSION}.tar.gz
-      travis_retry wget --quiet -O - ${GTEST_URL} | tar -xz --transform s/googletest-${GTEST_VERSION}/gtest/
+      travis_retry wget --quiet -O - ${GTEST_URL} | tar -xz
+      mv googletest-${GTEST_VERSION}/googletest ${GTEST_DIR}
       cd ${GTEST_DIR}
       cmake -DBUILD_SHARED_LIBS=ON
       make
