@@ -6,8 +6,6 @@ endif
 
 ifndef VERSION
 	VERSION = c++14
-else
-	VERSION = ${VERSION}
 endif
 
 FSN_PATH = ../include/
