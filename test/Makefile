@@ -1,10 +1,10 @@
-ifndef ${CXX}
+ifndef CXX
 	COMPILER = g++
 else
 	COMPILER = ${CXX}
 endif
 
-ifndef ${VERSION}
+ifndef VERSION
 	VERSION = c++14
 else
 	VERSION = ${VERSION}
