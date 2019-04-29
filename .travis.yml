@@ -153,5 +153,5 @@ install:
 before_script:
   - cd ${TRAVIS_BUILD_DIR}/test
 script:
-  - make LINKER_FLAGS='-L ${GTEST_DIR} -lgtest -lgtest_main' COMPILER_FLAGS='-O3 -Wall -Wextra -pedantic -Wfloat-equal -Wconversion -I ${GTEST_DIR}/include'
+  - make LINKER_FLAGS="-L ${GTEST_DIR} -lgtest -lgtest_main" COMPILER_FLAGS="-O3 -Wall -Wextra -pedantic -Wfloat-equal -Wconversion -I ${GTEST_DIR}/include"
   - ./run
