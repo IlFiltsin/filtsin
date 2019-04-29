@@ -5,7 +5,7 @@ COMPILER = ${CXX}
 endif
 
 FSN_PATH = ../include/
-COMPILER_FLAGS = -O3 -Wall -Wextra -pedantic -Wfloat-equal -Wconversion -Wlogical-op -Wshift-overflow=2 -Wduplicated-cond 
+COMPILER_FLAGS = -O3 -Wall -Wextra -pedantic -Wfloat-equal -Wconversion
 LINKER_FLAGS = -lgtest -lgtest_main
 
 OBJECTS = ./obj/w_int_arithmetic_test.o
