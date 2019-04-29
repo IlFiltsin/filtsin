@@ -1,0 +1,157 @@
+language: cpp
+sudo: false
+notifications:
+  email: false
+
+os: linux
+dist: trusty
+
+cache:
+  directories:
+    - ${TRAVIS_BUILD_DIR}/deps
+
+matrix:
+  #######################################
+  ####              GCC              ####
+  ####################################### 
+  include:
+    - env: COMPILER=g++-4.9 VERSION=c++11
+      addons:
+        apt:
+          sources: [ubuntu-toolchain-r-test]
+          packages: [g++-4.9]
+    
+    - env: COMPILER=g++-5 VERSION=c++14
+      addons:
+        apt:
+          sources: [ubuntu-toolchain-r-test]
+          packages: [g++-5]
+    
+    - env: COMPILER=g++-6 VERSION=c++14
+      addons:
+        apt:
+          sources: [ubuntu-toolchain-r-test]
+          packages: [g++-6]
+
+    - env: COMPILER=g++-7 VERSION=c++17
+      addons: &gcc7
+        apt:
+          sources: [ubuntu-toolchain-r-test]
+          packages: [g++-7]
+
+    - env: COMPILER=g++-7 VERSION=c++14
+      addons: *gcc7
+
+    - env: COMPILER=g++-8 VERSION=c++17
+      addons: &gcc8
+        apt:
+          sources: [ubuntu-toolchain-r-test]
+          packages: [g++-8]
+
+    - env: COMPILER=g++-8 VERSION=c++14
+      addons: *gcc8
+  #######################################
+  ####             CLang             ####
+  ####################################### 
+    - env: COMPILER=clang++-3.6 VERSION=c++14
+      addons:
+        apt:
+          sources: [ubuntu-toolchain-r-test, 
+                    llvm-toolchain-precise-3.6]
+          packages: [clang++-3.6]
+
+    - env: COMPILER=clang++-3.7 VERSION=c++14
+      addons:
+        apt:
+          sources: [ubuntu-toolchain-r-test, 
+                    llvm-toolchain-precise-3.7]
+          packages: [clang++-3.7]
+
+    - env: COMPILER=clang++-3.8 VERSION=c++14
+      addons:
+        apt:
+          sources: [ubuntu-toolchain-r-test, 
+                    llvm-toolchain-precise-3.8]
+          packages: [clang++-3.8, g++-5]
+
+    - env: COMPILER=clang++-3.9 VERSION=c++14
+      addons:
+        apt:
+          sources: [ubuntu-toolchain-r-test, 
+                    llvm-toolchain-trusty-3.9]
+          packages: [clang++-3.9, g++-5]
+
+    - env: COMPILER=clang++-4.0 VERSION=c++14
+      addons:
+        apt:
+          sources: [ubuntu-toolchain-r-test, 
+                    llvm-toolchain-trusty-4.0]
+          packages: [clang++-4.0]
+
+    - env: COMPILER=clang++-5.0 VERSION=c++17
+      addons:
+        apt:
+          sources: [ubuntu-toolchain-r-test, 
+                    llvm-toolchain-trusty-5.0]
+          packages: [clang++-5.0]
+
+    - env: COMPILER=clang++-6.0 VERSION=c++17
+      addons: &clang60
+        apt:
+          sources: [ubuntu-toolchain-r-test, 
+                    llvm-toolchain-trusty-6.0]
+          packages: [clang++-6.0]
+
+    - env: COMPILER=clang++-6.0 VERSION=c++14
+      addons: *clang60
+
+    - env: COMPILER=clang++-7 VERSION=c++17
+      addons: &clang70
+        apt:
+          sources: [ubuntu-toolchain-r-test, 
+                    llvm-toolchain-trusty-7]
+          packages: [clang++-7]
+    
+    - env: COMPILER=clang++-7 VERSION=c++14
+      addons: *clang70
+
+install:
+  - export CXX=${COMPILER}
+  - ${CXX} --version
+  - DEPS_DIR=${TRAVIS_BUILD_DIR}/deps
+  - CMAKE_DIR=${DEPS_DIR}/cmake
+  - GTEST_DIR=${DEPS_DIR}/gtest
+  - mkdir -p ${DEPS_DIR}
+  - cd ${DEPS_DIR}
+
+  #######################################
+  ####             Cmake             ####
+  ####################################### 
+  - |
+    if [[ ! -d ${CMAKE_DIR} ]]; then
+      CMAKE_URL=https://github.com/Kitware/CMake/releases/download/v3.14.2/cmake-3.14.2.tar.gz
+      mkdir ${CMAKE_DIR}
+      travis_retry wget --quiet -O - ${CMAKE_URL} | tar -xz -C ${CMAKE_DIR}
+    fi
+  - export PATH=${CMAKE_DIR}/bin:${PATH}
+  - cmake --version
+
+  #######################################
+  ####             GTest             ####
+  ####################################### 
+  - |
+    if [[ ! -d ${GTEST_DIR} ]]; then
+      GTEST_VERSION=release-1.7.0
+      GTEST_URL=https://github.com/google/googletest/archive/${GTEST_VERSION}.tar.gz
+      travis_retry wget --quiet -O - ${GTEST_URL} | tar -xz --transform s/googletest-${GTEST_VERSION}/gtest/
+      cd ${GTEST_DIR}
+      cmake -DBUILD_SHARED_LIBS=ON
+      make
+    fi
+  - export LD_LIBRARY_PATH=${GTEST_DIR}
+
+before_script:
+  - cd ${TRAVIS_BUILD_DIR}/test
+script:
+  - make LINKER_FLAGS='-L ${GTEST_DIR} -lgtest -lgtest_main'
+  - ./run

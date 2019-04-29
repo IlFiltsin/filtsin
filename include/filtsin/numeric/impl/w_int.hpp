@@ -1,5 +1,5 @@
-#ifndef FILTSIN_NUMERIC_W_INT
-#define FILTSIN_NUMERIC_W_INT
+#ifndef FILTSIN_NUMERIC_IMPL_W_INT
+#define FILTSIN_NUMERIC_IMPL_W_INT
 
 // FSN headers
 #include <cstdint>

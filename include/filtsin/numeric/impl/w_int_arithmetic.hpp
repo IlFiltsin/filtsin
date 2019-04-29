@@ -1,5 +1,5 @@
-#ifndef FILTSIN_NUMERIC_W_INT_ARITHMETIC
-#define FILTSIN_NUMERIC_W_INT_ARITHMETIC
+#ifndef FILTSIN_NUMERIC_IMPL_W_INT_ARITHMETIC
+#define FILTSIN_NUMERIC_IMPL_W_INT_ARITHMETIC
 
 #include <limits>
 #include <type_traits>
@@ -7,17 +7,17 @@
 #include <filtsin/macro/def.hpp>
 
 namespace fsn {
+
  template<typename BaseType, class = typename std::enable_if<std::is_unsigned<BaseType>::value>::type>
  struct w_int_arithmetic {
   
-  using  unit_type = BaseType;
+  using unit_type = BaseType;
   static constexpr unit_type unit_max   = std::numeric_limits<unit_type>::max();
-  static constexpr size_t    unit_size  = sizeof(unit_type) * 8;
+  static constexpr size_t    unit_size  = sizeof(unit_type) * 8; // size in bits
 
-  template <typename T>
   struct multiplication_builtin_parts {
-    T higher;
-    T lower;
+    unit_type top;
+    unit_type low;
   };
 
   /*
@@ -44,43 +44,41 @@ namespace fsn {
    *     111 | 01010
    *          --------------
    *    1010 | 11001100 | 0010
-   *              ^
-   *           It is sum of first 8 bits of the mul and last 8 bits of the mul2
-   *     ^
+   *      ^        ^
+   *      |        |
+   *      |    It is sum of first 8 bits of the mul and last 8 bits of the mul2
+   *      |
    *   It is first 4 bits of the result, we know it by taking last 4 bits of the mul2 and check overflow in sum of
    *   first 8 bits of the mul and last 8 bits of the mul2
    *
-   *   Result: higher is 10101100, lower is 11000010
+   *   Result: top is 10101100, low is 11000010
    *
    */
-  template <typename T, class = typename std::enable_if<std::is_unsigned<T>::value>::type>
-  static fsn_constexpr multiplication_builtin_parts<T> multiplication_of_builtin_to_builtin(T value1, T value2) noexcept {
-   constexpr size_t t_size  = sizeof(T) * 4; // (t_size * 8) / 2
-   constexpr T      mask    = ((static_cast<T>(1) << t_size) - 1);
+  static fsn_constexpr multiplication_builtin_parts multiplication_of_builtin_to_builtin(unit_type value1, unit_type value2) noexcept {
+   constexpr size_t t_size     = sizeof(unit_type) * 4; // (t_size * 8) / 2
+   constexpr unit_type mask    = (static_cast<unit_type>(1) << t_size) - 1;
 
-   const T lower_of_value1  = value1 & mask;
-   const T higher_of_value1 = value1 >> t_size;
-   const T lower_of_value2  = value2 & mask;
-   const T higher_of_value2 = value2 >> t_size;
+   const unit_type lower_of_value1  = static_cast<unit_type>(value1 & mask);
+   const unit_type higher_of_value1 = static_cast<unit_type>(value1 >> t_size);
+   const unit_type lower_of_value2  = static_cast<unit_type>(value2 & mask);
+   const unit_type higher_of_value2 = static_cast<unit_type>(value2 >> t_size);
 
-   const T ll        = lower_of_value1  * lower_of_value2;
-   const T hl        = higher_of_value1 * lower_of_value2;
-   const T lh        = lower_of_value1  * higher_of_value2 + (ll >> t_size) + hl;
-   const T hh        = higher_of_value1 * higher_of_value2;
+   const unit_type ll  = static_cast<unit_type>(lower_of_value1  * lower_of_value2);
+   const unit_type hl  = static_cast<unit_type>(higher_of_value1 * lower_of_value2);
+   const unit_type lh  = static_cast<unit_type>(lower_of_value1  * higher_of_value2 + (ll >> t_size) + hl);
+   const unit_type hh  = static_cast<unit_type>(higher_of_value1 * higher_of_value2);
 
-   const T lower  = (ll & mask) + (lh << t_size);
-   const T higher = (lh >> t_size) + hh + ((lh < hl) ? (mask + 1) : 0);
-
-   return {higher,lower};
+   const unit_type low  = static_cast<unit_type>((ll & mask) + (lh << t_size));
+   const unit_type top = static_cast<unit_type>((lh >> t_size) + hh + ((lh < hl) ? (mask + 1) : 0));
+   return {top, low};
   }
 
-  template <typename T, class = typename std::enable_if<std::is_unsigned<T>::value>::type>
-  static fsn_constexpr T multiplication_of_wint_to_builtin(T *begin, T *end, T value) {
-   T remainder = 0;
+  static fsn_constexpr unit_type multiplication_of_wint_to_builtin(unit_type *begin, unit_type *end, unit_type value) {
+   unit_type remainder = 0;
    for (; begin < end; ++begin) {
-    auto multiplication_of_builtin = multiplication_of_builtin_to_builtin(*begin,value);
-    *begin    = multiplication_of_builtin.lower + remainder;
-    remainder = ((*begin < remainder) ? 1 : 0) + multiplication_of_builtin.higher;
+    auto multiplication_of_builtin = multiplication_of_builtin_to_builtin(*begin, value);
+    *begin    = static_cast<unit_type>(multiplication_of_builtin.low + remainder);
+    remainder = static_cast<unit_type>((*begin < remainder) + multiplication_of_builtin.top);
    }
    return remainder;
   }
